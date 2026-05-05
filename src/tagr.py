@@ -94,6 +94,40 @@ def safe_fn(s):
     for c in r'/\:*?"<>|': s=s.replace(c,"")
     return s.strip()
 
+def clean_text(s):
+    return " ".join(str(s or "").split()).strip()
+
+def unique_path(path):
+    path = Path(path)
+    if not path.exists():
+        return path
+    i = 1
+    while True:
+        candidate = path.with_name(f"{path.stem}_{i}{path.suffix}")
+        if not candidate.exists():
+            return candidate
+        i += 1
+
+def name_from_pattern(pattern, tags, path):
+    base = os.path.splitext(os.path.basename(path))[0]
+    values = {
+        "{titre}": clean_text(tags.get("title")) or base,
+        "{artiste}": clean_text(tags.get("artist")) or "Inconnu",
+        "{album}": clean_text(tags.get("album")),
+        "{piste}": clean_text(tags.get("track")),
+        "{annee}": clean_text(tags.get("year")),
+    }
+    name = pattern
+    for key, value in values.items():
+        name = name.replace(key, value)
+    return safe_fn(clean_text(name))
+
+def spotify_filename(tags, path):
+    title = clean_text(tags.get("title")) or os.path.splitext(os.path.basename(path))[0]
+    artist = clean_text(tags.get("artist"))
+    stem = f"{artist} - {title}" if artist else title
+    return f"{safe_fn(stem) or 'audio'}{os.path.splitext(path)[1].lower()}"
+
 def pil_to_qpixmap(img, size):
     img=img.copy(); img.thumbnail((size,size),PILImage.LANCZOS)
     bg=PILImage.new("RGB",(size,size),(30,30,30))
@@ -1415,6 +1449,7 @@ class Tagr(QMainWindow):
 
         top_btn("CSV", self._export_csv)
         top_btn("Stats", self._show_stats)
+        top_btn("Spotify", self._prepare_spotify_folder)
         self.album_btn = top_btn("Vue album", self._toggle_album_view)
         top_btn("Theme", self._toggle_theme)
         info_btn = top_btn("i", self._show_shortcuts, w=26)
@@ -1540,6 +1575,7 @@ class Tagr(QMainWindow):
         abtn("Convertir le format",self._convert_format)
         sep3=QFrame(); sep3.setFrameShape(QFrame.Shape.HLine); sep3.setStyleSheet(f"color:{BORDER};"); bc.addWidget(sep3)
         abtn("Renommer par lot",self._batch_rename)
+        abtn("Exporter pour Spotify",self._prepare_spotify_folder)
         top.addLayout(bc,1)
         v.addLayout(top)
 
@@ -1605,10 +1641,14 @@ class Tagr(QMainWindow):
         save.setStyleSheet(f"background:{ACCENT};color:#000;font-weight:bold;font-size:12px;"
                            f"border:none;padding:10px 28px;border-radius:5px;")
         save.setCursor(Qt.CursorShape.PointingHandCursor); save.clicked.connect(self._save_current)
+        save_next=QPushButton("Sauvegarder + suivant")
+        save_next.setStyleSheet(f"background:{ACCENT2};color:#000;font-weight:bold;font-size:11px;"
+                                f"border:none;padding:10px 16px;border-radius:5px;")
+        save_next.setCursor(Qt.CursorShape.PointingHandCursor); save_next.clicked.connect(self._save_and_next)
         save_all=QPushButton("Tout sauvegarder")
         save_all.setStyleSheet(f"background:{PANEL};color:{TEXTM};font-size:11px;border:none;padding:10px 14px;border-radius:5px;")
         save_all.setCursor(Qt.CursorShape.PointingHandCursor); save_all.clicked.connect(self._save_all)
-        bot.addWidget(save); bot.addWidget(save_all); bot.addStretch()
+        bot.addWidget(save); bot.addWidget(save_next); bot.addWidget(save_all); bot.addStretch()
         v.addLayout(bot)
 
         self.status_lbl=QLabel("")
@@ -1858,6 +1898,16 @@ class Tagr(QMainWindow):
             self._flash(f"Erreur : {res}",err=True)
             return False
 
+    def _save_and_next(self):
+        if self.current_index < 0:
+            return
+        if not self._save_current():
+            return
+        if self.current_index < len(self.rows) - 1:
+            self._on_row_select(self.rows[self.current_index + 1])
+        else:
+            self._flash("Dernier fichier sauvegardé")
+
     # ── Renommer ──────────────────────────────────────────────────────────────
 
     def _rename_file(self):
@@ -1986,6 +2036,109 @@ class Tagr(QMainWindow):
                     self._flash(f"Erreur : {res}", err=True); return False
         self._flash(f"Tout sauvegardé ({saved} fichier(s))")
         return True
+
+    def _row_tags(self, row):
+        tags = self.tags_cache.get(row.path) or read_tags(row.path)
+        self.tags_cache[row.path] = tags
+        return tags
+
+    def _spotify_issues(self, tags, path):
+        issues = []
+        ext = os.path.splitext(path)[1].lower()
+        if ext != ".mp3":
+            issues.append("format non MP3")
+        if not clean_text(tags.get("title")):
+            issues.append("titre manquant")
+        if not clean_text(tags.get("artist")):
+            issues.append("artiste manquant")
+        if not tags.get("cover"):
+            issues.append("pochette manquante")
+        return issues
+
+    def _prepare_spotify_folder(self):
+        if not self.rows:
+            self._flash("Aucun fichier à exporter", err=True); return
+        if any(r._dirty for r in self.rows):
+            from PyQt6.QtWidgets import QMessageBox
+            msg = QMessageBox(self)
+            msg.setWindowTitle("Modifications non sauvegardées")
+            msg.setText("Sauvegarder les tags avant l'export Spotify ?")
+            msg.setInformativeText("L'export copie les fichiers tels qu'ils sont sur disque.")
+            msg.setStyleSheet(f"background:{BG2};color:{TEXT};")
+            save_btn = msg.addButton("Sauvegarder", QMessageBox.ButtonRole.AcceptRole)
+            cancel_btn = msg.addButton("Annuler", QMessageBox.ButtonRole.RejectRole)
+            msg.exec()
+            if msg.clickedButton() == cancel_btn:
+                return
+            if msg.clickedButton() == save_btn and not self._save_all():
+                return
+
+        default_dir = self._cfg.get(
+            "spotify_export_folder",
+            str(Path.home() / "Music" / "Tagr Spotify Ready"))
+        out_dir = QFileDialog.getExistingDirectory(
+            self, "Choisir le dossier Spotify Ready", default_dir)
+        if not out_dir:
+            return
+        self._cfg["spotify_export_folder"] = out_dir
+        save_config(self._cfg)
+
+        ready = []
+        review = []
+        for row in self.rows:
+            tags = self._row_tags(row)
+            issues = self._spotify_issues(tags, row.path)
+            if issues:
+                review.append((row.path, tags, issues))
+            else:
+                ready.append((row.path, tags))
+
+        lines = [
+            f"{len(ready)} fichier(s) prêts",
+            f"{len(review)} fichier(s) à vérifier",
+            "",
+        ]
+        for path, tags in ready[:8]:
+            lines.append(f"OK  {spotify_filename(tags, path)}")
+        if len(ready) > 8:
+            lines.append(f"... +{len(ready)-8} autres prêts")
+        for path, tags, issues in review[:8]:
+            lines.append(f"À vérifier  {os.path.basename(path)} : {', '.join(issues)}")
+        if len(review) > 8:
+            lines.append(f"... +{len(review)-8} autres à vérifier")
+
+        from PyQt6.QtWidgets import QMessageBox
+        msg = QMessageBox(self)
+        msg.setWindowTitle("Export Spotify Ready")
+        msg.setText("Créer les copies prêtes pour Spotify ?")
+        msg.setInformativeText("\n".join(lines))
+        msg.setStyleSheet(f"background:{BG2};color:{TEXT};")
+        export_btn = msg.addButton("Exporter les prêts", QMessageBox.ButtonRole.AcceptRole)
+        all_btn = msg.addButton("Exporter tout", QMessageBox.ButtonRole.ActionRole)
+        cancel_btn = msg.addButton("Annuler", QMessageBox.ButtonRole.RejectRole)
+        msg.exec()
+        clicked = msg.clickedButton()
+        if clicked == cancel_btn:
+            return
+        targets = ready if clicked == export_btn else [(p, t) for p, t in ready] + [(p, t) for p, t, _ in review]
+
+        copied = 0
+        failed = 0
+        Path(out_dir).mkdir(parents=True, exist_ok=True)
+        for path, tags in targets:
+            try:
+                dest = unique_path(Path(out_dir) / spotify_filename(tags, path))
+                shutil.copy2(path, dest)
+                copied += 1
+            except Exception:
+                failed += 1
+        subprocess.run(["open", out_dir], capture_output=True)
+        msg = f"Spotify Ready : {copied} fichier(s) exporté(s)"
+        if failed:
+            msg += f" · {failed} échec(s)"
+        if review and clicked == export_btn:
+            msg += f" · {len(review)} à vérifier"
+        self._flash(msg, err=failed > 0)
 
     def _check_dirty_before_nav(self):
         if self.current_index < 0: return True
@@ -2248,13 +2401,7 @@ class Tagr(QMainWindow):
         for row in targets:
             path = row.path
             tags = self.tags_cache.get(path) or read_tags(path)
-            name = pattern
-            name = name.replace("{titre}",   tags.get("title","") or os.path.splitext(os.path.basename(path))[0])
-            name = name.replace("{artiste}", tags.get("artist","") or "Inconnu")
-            name = name.replace("{album}",   tags.get("album","") or "")
-            name = name.replace("{piste}",   tags.get("track","") or "")
-            name = name.replace("{annee}",   tags.get("year","") or "")
-            name = safe_fn(name.strip())
+            name = name_from_pattern(pattern, tags, path)
             if not name: continue
             ext = os.path.splitext(path)[1]
             new_path = os.path.join(os.path.dirname(path), name + ext)
@@ -2297,6 +2444,7 @@ class Tagr(QMainWindow):
             ("Cmd+S",           "Sauvegarder"),
             ("Cmd+Shift+S",     "Tout sauvegarder"),
             ("Cmd+Z",           "Annuler les modifications"),
+            ("Bouton Spotify",  "Exporter les copies prêtes pour Spotify"),
             ("Entree",          "Sauvegarder"),
             ("Espace",          "Lecture / Pause"),
             ("Haut / Bas",      "Fichier precedent / suivant"),
