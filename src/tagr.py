@@ -1224,7 +1224,8 @@ class TrimDialog(QDialog):
                 orig = read_tags(self.path)
                 write_tags(out, orig["title"], orig["artist"], orig["album"],
                            orig.get("year",""), orig.get("genre",""),
-                           orig.get("bpm",""), orig.get("cover"))
+                           orig.get("bpm",""), orig.get("track",""),
+                           orig.get("cover"))
             except: pass
             subprocess.run(["mdimport", out], capture_output=True)
             subprocess.run(["open", "-R", out])
@@ -1939,7 +1940,8 @@ class Tagr(QMainWindow):
                 res = write_tags(path,
                     tags.get("title",""), tags.get("artist",""),
                     tags.get("album",""), tags.get("year",""),
-                    tags.get("genre",""), tags.get("bpm",""), tags.get("cover"))
+                    tags.get("genre",""), tags.get("bpm",""),
+                    tags.get("track",""), tags.get("cover"))
                 if res is True:
                     row.set_dirty(False)
                     subprocess.run(["mdimport", path], capture_output=True)
@@ -2126,7 +2128,6 @@ class Tagr(QMainWindow):
                   "aac":["-codec:a","aac","-b:a","256k"],
                   "wav":["-codec:a","pcm_s16le"]}
         cmd = [ff, "-y", "-i", path] + codecs.get(fmt, []) + [out]
-        r = subprocess.run(cmd, capture_output=True)
         duration_ms = 0
         try:
             import mutagen as _m
