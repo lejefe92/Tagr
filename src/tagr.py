@@ -1449,6 +1449,9 @@ class Tagr(QMainWindow):
 
         top_btn("CSV", self._export_csv)
         top_btn("Stats", self._show_stats)
+        top_btn("Contrôle", self._show_spotify_control)
+        top_btn("Champs", self._batch_apply_fields)
+        top_btn("Doublons", self._show_duplicates)
         top_btn("Spotify", self._prepare_spotify_folder)
         self.album_btn = top_btn("Vue album", self._toggle_album_view)
         top_btn("Theme", self._toggle_theme)
@@ -1574,7 +1577,10 @@ class Tagr(QMainWindow):
         abtn("Avant / Apres norm.",self._preview_before_after)
         abtn("Convertir le format",self._convert_format)
         sep3=QFrame(); sep3.setFrameShape(QFrame.Shape.HLine); sep3.setStyleSheet(f"color:{BORDER};"); bc.addWidget(sep3)
+        abtn("Contrôle Spotify",self._show_spotify_control)
+        abtn("Champs en lot",self._batch_apply_fields)
         abtn("Renommer par lot",self._batch_rename)
+        abtn("Voir doublons",self._show_duplicates)
         abtn("Exporter pour Spotify",self._prepare_spotify_folder)
         top.addLayout(bc,1)
         v.addLayout(top)
@@ -1645,10 +1651,14 @@ class Tagr(QMainWindow):
         save_next.setStyleSheet(f"background:{ACCENT2};color:#000;font-weight:bold;font-size:11px;"
                                 f"border:none;padding:10px 16px;border-radius:5px;")
         save_next.setCursor(Qt.CursorShape.PointingHandCursor); save_next.clicked.connect(self._save_and_next)
+        save_issue=QPushButton("Sauver + problème suivant")
+        save_issue.setStyleSheet(f"background:{PANEL};color:{ACCENT};font-weight:bold;font-size:11px;"
+                                 f"border:1px solid {BORDER};padding:10px 14px;border-radius:5px;")
+        save_issue.setCursor(Qt.CursorShape.PointingHandCursor); save_issue.clicked.connect(self._save_and_next_issue)
         save_all=QPushButton("Tout sauvegarder")
         save_all.setStyleSheet(f"background:{PANEL};color:{TEXTM};font-size:11px;border:none;padding:10px 14px;border-radius:5px;")
         save_all.setCursor(Qt.CursorShape.PointingHandCursor); save_all.clicked.connect(self._save_all)
-        bot.addWidget(save); bot.addWidget(save_next); bot.addWidget(save_all); bot.addStretch()
+        bot.addWidget(save); bot.addWidget(save_next); bot.addWidget(save_issue); bot.addWidget(save_all); bot.addStretch()
         v.addLayout(bot)
 
         self.status_lbl=QLabel("")
@@ -2055,6 +2065,162 @@ class Tagr(QMainWindow):
             issues.append("pochette manquante")
         return issues
 
+    def _spotify_audit(self):
+        ready = []
+        review = []
+        duplicates = {}
+        for row in self.rows:
+            tags = self._row_tags(row)
+            key = (clean_text(tags.get("title")).lower(),
+                   clean_text(tags.get("artist")).lower())
+            if key[0] and key[1]:
+                duplicates.setdefault(key, []).append(row.path)
+            issues = self._spotify_issues(tags, row.path)
+            if issues:
+                review.append((row, tags, issues))
+            else:
+                ready.append((row, tags))
+        duplicate_paths = {p for paths in duplicates.values() if len(paths) > 1 for p in paths}
+        for row, tags in ready[:]:
+            if row.path in duplicate_paths:
+                ready.remove((row, tags))
+                review.append((row, tags, ["doublon possible"]))
+        for i, (row, tags, issues) in enumerate(review):
+            if row.path in duplicate_paths and "doublon possible" not in issues:
+                review[i] = (row, tags, issues + ["doublon possible"])
+        return ready, review
+
+    def _select_path(self, path):
+        for row in self.rows:
+            if row.path == path:
+                self._on_row_select(row)
+                return
+
+    def _next_spotify_issue(self):
+        if not self.rows:
+            return None
+        start = self.current_index + 1 if self.current_index >= 0 else 0
+        ordered = self.rows[start:] + self.rows[:start]
+        for row in ordered:
+            if self._spotify_issues(self._row_tags(row), row.path):
+                return row
+        return None
+
+    def _save_and_next_issue(self):
+        if self.current_index >= 0 and not self._save_current():
+            return
+        row = self._next_spotify_issue()
+        if row:
+            self._on_row_select(row)
+        else:
+            self._flash("Aucun problème Spotify restant")
+
+    def _show_spotify_control(self):
+        if not self.rows:
+            self._flash("Aucun fichier dans la liste", err=True); return
+        from PyQt6.QtWidgets import QDialog
+        ready, review = self._spotify_audit()
+        d = QDialog(self)
+        d.setWindowTitle("Contrôle Spotify")
+        d.setStyleSheet(f"background:{BG2};color:{TEXT};")
+        d.setMinimumSize(620, 460)
+        v = QVBoxLayout(d); v.setContentsMargins(20,18,20,18); v.setSpacing(10)
+        title = QLabel(f"{len(ready)} prêt(s) · {len(review)} à vérifier")
+        title.setStyleSheet(f"color:{TEXT};font-size:15px;font-weight:bold;")
+        v.addWidget(title)
+        scroll = QScrollArea(); scroll.setWidgetResizable(True)
+        scroll.setStyleSheet(f"QScrollArea{{background:{BG2};border:1px solid {BORDER};}}")
+        cont = QWidget(); cont.setStyleSheet(f"background:{BG2};")
+        rows = QVBoxLayout(cont); rows.setContentsMargins(0,0,0,0); rows.setSpacing(1)
+        entries = [(row, "OK", spotify_filename(tags, row.path), ACCENT)
+                   for row, tags in ready]
+        entries += [(row, "A vérifier", f"{os.path.basename(row.path)} · {', '.join(issues)}", WARN)
+                    for row, tags, issues in review]
+        for row, status, detail, color in entries:
+            btn = QPushButton(f"{status}  {detail}")
+            btn.setStyleSheet(f"background:{PANEL};color:{color};border:none;"
+                              f"text-align:left;padding:8px 10px;font-size:10px;")
+            btn.clicked.connect(lambda _, p=row.path, dia=d: (dia.accept(), self._select_path(p)))
+            rows.addWidget(btn)
+        rows.addStretch()
+        scroll.setWidget(cont); v.addWidget(scroll, 1)
+        brow = QHBoxLayout()
+        next_btn = QPushButton("Aller au prochain problème")
+        next_btn.setStyleSheet(f"background:{ACCENT};color:#000;font-weight:bold;border:none;padding:8px 14px;border-radius:4px;")
+        next_btn.clicked.connect(lambda: (d.accept(), self._select_path(self._next_spotify_issue().path) if self._next_spotify_issue() else self._flash("Aucun problème Spotify restant")))
+        close = QPushButton("Fermer")
+        close.setStyleSheet(f"background:{PANEL};color:{TEXTM};border:none;padding:8px 14px;border-radius:4px;")
+        close.clicked.connect(d.accept)
+        brow.addStretch(); brow.addWidget(next_btn); brow.addWidget(close)
+        v.addLayout(brow)
+        d.exec()
+
+    def _batch_apply_fields(self):
+        if self.current_index < 0:
+            self._flash("Sélectionne un fichier modèle", err=True); return
+        from PyQt6.QtWidgets import QDialog, QCheckBox
+        source = {
+            "artist": self.field_artist.text().strip(),
+            "album": self.field_album.text().strip(),
+            "genre": self.field_genre.text().strip(),
+            "year": self.field_year.text().strip(),
+        }
+        d = QDialog(self)
+        d.setWindowTitle("Champs en lot")
+        d.setStyleSheet(f"background:{BG2};color:{TEXT};")
+        d.setMinimumWidth(360)
+        v = QVBoxLayout(d); v.setContentsMargins(20,18,20,18); v.setSpacing(10)
+        v.addWidget(QLabel("Appliquer depuis le morceau sélectionné :", styleSheet=f"color:{TEXT};font-size:12px;"))
+        checks = []
+        for key, label in [("artist","Artiste"),("album","Album"),("genre","Genre"),("year","Année")]:
+            chk = QCheckBox(f"{label} : {source[key] or '(vide)'}")
+            chk.setEnabled(bool(source[key]))
+            chk.setStyleSheet(f"color:{TEXTM};font-size:10px;")
+            v.addWidget(chk); checks.append((key, chk))
+        number_chk = QCheckBox("Numéroter les pistes dans l'ordre de la liste")
+        number_chk.setStyleSheet(f"color:{TEXTM};font-size:10px;")
+        v.addWidget(number_chk)
+        brow = QHBoxLayout()
+        ok = QPushButton("Appliquer")
+        ok.setStyleSheet(f"background:{ACCENT};color:#000;font-weight:bold;border:none;padding:8px 16px;border-radius:4px;")
+        cancel = QPushButton("Annuler")
+        cancel.setStyleSheet(f"background:{PANEL};color:{TEXTM};border:none;padding:8px 14px;border-radius:4px;")
+        ok.clicked.connect(d.accept); cancel.clicked.connect(d.reject)
+        brow.addStretch(); brow.addWidget(cancel); brow.addWidget(ok)
+        v.addLayout(brow)
+        if d.exec() != QDialog.DialogCode.Accepted:
+            return
+        changed = 0
+        total = len(self.rows)
+        for idx, row in enumerate(self.rows, start=1):
+            tags = self._row_tags(row).copy()
+            touched = False
+            for key, chk in checks:
+                if chk.isChecked():
+                    tags[key] = source[key]
+                    touched = True
+            if number_chk.isChecked():
+                tags["track"] = f"{idx}/{total}"
+                touched = True
+            if not touched:
+                continue
+            ok, backup = backup_audio_file(row.path, "batch_fields")
+            if not ok:
+                continue
+            res = write_tags(row.path, tags.get("title",""), tags.get("artist",""),
+                             tags.get("album",""), tags.get("year",""),
+                             tags.get("genre",""), tags.get("bpm",""),
+                             tags.get("track",""), tags.get("cover"))
+            if res is True:
+                self.tags_cache[row.path] = tags
+                row.set_display(tags.get("title",""), tags.get("artist",""), tags.get("cover"))
+                row.set_dirty(False)
+                subprocess.run(["mdimport", row.path], capture_output=True)
+                changed += 1
+        if self.current_index >= 0:
+            self._on_row_select(self.rows[self.current_index])
+        self._flash(f"Champs appliqués à {changed} fichier(s)")
+
     def _prepare_spotify_folder(self):
         if not self.rows:
             self._flash("Aucun fichier à exporter", err=True); return
@@ -2083,15 +2249,9 @@ class Tagr(QMainWindow):
         self._cfg["spotify_export_folder"] = out_dir
         save_config(self._cfg)
 
-        ready = []
-        review = []
-        for row in self.rows:
-            tags = self._row_tags(row)
-            issues = self._spotify_issues(tags, row.path)
-            if issues:
-                review.append((row.path, tags, issues))
-            else:
-                ready.append((row.path, tags))
+        ready_rows, review_rows = self._spotify_audit()
+        ready = [(row.path, tags) for row, tags in ready_rows]
+        review = [(row.path, tags, issues) for row, tags, issues in review_rows]
 
         lines = [
             f"{len(ready)} fichier(s) prêts",
@@ -2124,14 +2284,33 @@ class Tagr(QMainWindow):
 
         copied = 0
         failed = 0
+        copied_names = []
         Path(out_dir).mkdir(parents=True, exist_ok=True)
         for path, tags in targets:
             try:
                 dest = unique_path(Path(out_dir) / spotify_filename(tags, path))
                 shutil.copy2(path, dest)
+                copied_names.append(dest.name)
                 copied += 1
             except Exception:
                 failed += 1
+        try:
+            report = Path(out_dir) / "rapport_spotify.txt"
+            with open(report, "w", encoding="utf-8") as f:
+                from datetime import datetime
+                f.write(f"Export Tagr Spotify Ready - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
+                f.write(f"Exportés : {copied}\n")
+                f.write(f"Echecs : {failed}\n")
+                f.write(f"A vérifier : {len(review)}\n\n")
+                f.write("Fichiers exportés\n")
+                for name in copied_names:
+                    f.write(f"- {name}\n")
+                if review:
+                    f.write("\nFichiers à vérifier\n")
+                    for path, tags, issues in review:
+                        f.write(f"- {os.path.basename(path)} : {', '.join(issues)}\n")
+        except Exception:
+            pass
         subprocess.run(["open", out_dir], capture_output=True)
         msg = f"Spotify Ready : {copied} fichier(s) exporté(s)"
         if failed:
@@ -2396,17 +2575,52 @@ class Tagr(QMainWindow):
         if not pattern: return
         targets = self.rows if all_chk.isChecked() else (
             [self.rows[self.current_index]] if self.current_index >= 0 else [])
-        renamed = 0
-        skipped = 0
+        preview = []
+        conflicts = 0
+        seen_targets = set()
         for row in targets:
-            path = row.path
-            tags = self.tags_cache.get(path) or read_tags(path)
-            name = name_from_pattern(pattern, tags, path)
-            if not name: continue
-            ext = os.path.splitext(path)[1]
-            new_path = os.path.join(os.path.dirname(path), name + ext)
-            if new_path == path: continue
-            if os.path.exists(new_path): continue
+            tags = self._row_tags(row)
+            name = name_from_pattern(pattern, tags, row.path)
+            if not name:
+                continue
+            new_path = os.path.join(os.path.dirname(row.path), name + os.path.splitext(row.path)[1])
+            if new_path == row.path:
+                continue
+            issue = ""
+            if os.path.exists(new_path) or new_path in seen_targets:
+                issue = "conflit"
+                conflicts += 1
+            seen_targets.add(new_path)
+            preview.append((row.path, new_path, issue))
+        if not preview:
+            self._flash("Aucun renommage à appliquer"); return
+        from PyQt6.QtWidgets import QMessageBox
+        lines = []
+        for old, new, issue in preview[:12]:
+            suffix = f" ({issue})" if issue else ""
+            lines.append(f"{os.path.basename(old)} -> {os.path.basename(new)}{suffix}")
+        if len(preview) > 12:
+            lines.append(f"... +{len(preview)-12} autres")
+        msg = QMessageBox(self)
+        msg.setWindowTitle("Aperçu du renommage")
+        msg.setText(f"{len(preview)} renommage(s) prévu(s)")
+        msg.setInformativeText("\n".join(lines))
+        msg.setStyleSheet(f"background:{BG2};color:{TEXT};")
+        apply_btn = msg.addButton("Appliquer", QMessageBox.ButtonRole.AcceptRole)
+        cancel_btn = msg.addButton("Annuler", QMessageBox.ButtonRole.RejectRole)
+        msg.exec()
+        if msg.clickedButton() == cancel_btn:
+            return
+        renamed = 0
+        skipped = conflicts
+        rows_by_path = {row.path: row for row in targets}
+        for path, new_path, issue in preview:
+            if issue:
+                continue
+            row = rows_by_path.get(path)
+            if not row:
+                skipped += 1; continue
+            tags = self._row_tags(row)
             try:
                 ok, backup = backup_audio_file(path, "batch_rename")
                 if not ok:
@@ -2498,6 +2712,49 @@ class Tagr(QMainWindow):
                 else:
                     seen[key] = i
             except: pass
+
+    def _duplicate_groups(self):
+        groups = {}
+        for row in self.rows:
+            tags = self._row_tags(row)
+            t = clean_text(tags.get("title")).lower()
+            a = clean_text(tags.get("artist")).lower()
+            if t and a:
+                groups.setdefault((t, a), []).append(row)
+        return [rows for rows in groups.values() if len(rows) > 1]
+
+    def _show_duplicates(self):
+        groups = self._duplicate_groups()
+        if not groups:
+            self._flash("Aucun doublon titre/artiste détecté"); return
+        from PyQt6.QtWidgets import QDialog
+        d = QDialog(self)
+        d.setWindowTitle("Doublons possibles")
+        d.setStyleSheet(f"background:{BG2};color:{TEXT};")
+        d.setMinimumSize(560, 380)
+        v = QVBoxLayout(d); v.setContentsMargins(20,18,20,18); v.setSpacing(10)
+        title = QLabel(f"{len(groups)} groupe(s) de doublons possibles")
+        title.setStyleSheet(f"color:{TEXT};font-size:15px;font-weight:bold;")
+        v.addWidget(title)
+        scroll = QScrollArea(); scroll.setWidgetResizable(True)
+        cont = QWidget(); cont.setStyleSheet(f"background:{BG2};")
+        rows_l = QVBoxLayout(cont); rows_l.setContentsMargins(0,0,0,0); rows_l.setSpacing(1)
+        for group in groups:
+            tags = self._row_tags(group[0])
+            header = QLabel(f"{tags.get('artist','')} - {tags.get('title','')}")
+            header.setStyleSheet(f"color:{WARN};font-size:11px;font-weight:bold;padding:8px;background:{BG2};")
+            rows_l.addWidget(header)
+            for row in group:
+                btn = QPushButton(os.path.basename(row.path))
+                btn.setStyleSheet(f"background:{PANEL};color:{TEXTM};border:none;text-align:left;padding:7px 10px;font-size:10px;")
+                btn.clicked.connect(lambda _, p=row.path, dia=d: (dia.accept(), self._select_path(p)))
+                rows_l.addWidget(btn)
+        rows_l.addStretch(); scroll.setWidget(cont); v.addWidget(scroll, 1)
+        close = QPushButton("Fermer")
+        close.setStyleSheet(f"background:{PANEL};color:{TEXTM};border:none;padding:8px 14px;border-radius:4px;")
+        close.clicked.connect(d.accept)
+        v.addWidget(close, alignment=Qt.AlignmentFlag.AlignRight)
+        d.exec()
 
 
     def _export_csv(self):
