@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Tagr — Audio Metadata Editor (PyQt6)"""
 
-import sys, os, io, json, threading, subprocess, urllib.request, urllib.parse
+import sys, os, io, json, threading, subprocess, urllib.request, urllib.parse, shutil
 from pathlib import Path
 from PIL import Image as PILImage
 from mutagen.id3 import ID3, TIT2, TPE1, TALB, APIC, TDRC, TCON, TBPM, ID3NoHeaderError
@@ -18,6 +18,8 @@ from PyQt6.QtGui  import (QPixmap, QImage, QPainter, QColor, QPen, QBrush,
 
 # ── Config ────────────────────────────────────────────────────────────────────
 CONFIG_PATH = Path.home() / ".tagr_config.json"
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+AUDIO_BACKUP_DIR = PROJECT_ROOT / "backups" / "audio"
 
 def load_config():
     try: return json.loads(CONFIG_PATH.read_text())
@@ -26,6 +28,26 @@ def load_config():
 def save_config(d):
     try: CONFIG_PATH.write_text(json.dumps(d))
     except: pass
+
+def backup_audio_file(path, reason="edit"):
+    try:
+        src = Path(path)
+        if not src.is_file():
+            return False, "Fichier introuvable"
+        from datetime import datetime
+        stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+        reason = safe_fn(reason).replace(" ", "_").lower() or "edit"
+        folder = AUDIO_BACKUP_DIR / datetime.now().strftime("%Y-%m-%d") / reason
+        folder.mkdir(parents=True, exist_ok=True)
+        dest = folder / f"{stamp}_{safe_fn(src.stem) or 'audio'}{src.suffix}"
+        i = 1
+        while dest.exists():
+            dest = folder / f"{stamp}_{safe_fn(src.stem) or 'audio'}_{i}{src.suffix}"
+            i += 1
+        shutil.copy2(src, dest)
+        return True, str(dest)
+    except Exception as e:
+        return False, str(e)
 
 # ── Couleurs ──────────────────────────────────────────────────────────────────
 # ── Palettes ─────────────────────────────────────────────
@@ -1814,12 +1836,15 @@ class Tagr(QMainWindow):
     # ── Sauvegarder ───────────────────────────────────────────────────────────
 
     def _save_current(self):
-        if self.current_index<0: return
+        if self.current_index<0: return True
         path=self.files[self.current_index]
         title=self.field_title.text().strip(); artist=self.field_artist.text().strip()
         album=self.field_album.text().strip(); year=self.field_year.text().strip()
         genre=self.field_genre.text().strip(); bpm=self.field_bpm.text().strip()
         track=self.field_track.text().strip()
+        ok, backup = backup_audio_file(path, "tags")
+        if not ok:
+            self._flash(f"Sauvegarde impossible : {backup}", err=True); return False
         res=write_tags(path,title,artist,album,year,genre,bpm,track,self.current_cover)
         if res is True:
             self.tags_cache[path]={"title":title,"artist":artist,"album":album,
@@ -1828,7 +1853,10 @@ class Tagr(QMainWindow):
             self.rows[self.current_index].set_dirty(False)
             subprocess.run(["mdimport",path],capture_output=True)
             self._flash("Sauvegardé")
-        else: self._flash(f"Erreur : {res}",err=True)
+            return True
+        else:
+            self._flash(f"Erreur : {res}",err=True)
+            return False
 
     # ── Renommer ──────────────────────────────────────────────────────────────
 
@@ -1843,6 +1871,9 @@ class Tagr(QMainWindow):
         if new_path==path: self._flash("Déjà ce nom"); return
         if os.path.exists(new_path): self._flash("Ce nom existe déjà",err=True); return
         try:
+            ok, backup = backup_audio_file(path, "rename")
+            if not ok:
+                self._flash(f"Sauvegarde impossible : {backup}", err=True); return
             os.rename(path,new_path)
             self.files[self.current_index]=new_path
             self.tags_cache[new_path]=self.tags_cache.pop(path,{})
@@ -1907,7 +1938,8 @@ class Tagr(QMainWindow):
             if clicked == cancel_btn:
                 event.ignore(); return
             elif clicked == save_btn:
-                self._save_all()
+                if not self._save_all():
+                    event.ignore(); return
         event.accept()
 
     def _reveal_finder(self):
@@ -1931,12 +1963,16 @@ class Tagr(QMainWindow):
         self._flash("Modifications annulées")
 
     def _save_all(self):
-        if self.current_index >= 0: self._save_current()
+        if self.current_index >= 0 and not self._save_current():
+            return False
         saved = 0
         for i, row in enumerate(self.rows):
             if row._dirty and i != self.current_index:
                 path = self.files[i]
                 tags = self.tags_cache.get(path, {})
+                ok, backup = backup_audio_file(path, "tags")
+                if not ok:
+                    self._flash(f"Sauvegarde impossible : {backup}", err=True); return False
                 res = write_tags(path,
                     tags.get("title",""), tags.get("artist",""),
                     tags.get("album",""), tags.get("year",""),
@@ -1946,7 +1982,10 @@ class Tagr(QMainWindow):
                     row.set_dirty(False)
                     subprocess.run(["mdimport", path], capture_output=True)
                     saved += 1
+                else:
+                    self._flash(f"Erreur : {res}", err=True); return False
         self._flash(f"Tout sauvegardé ({saved} fichier(s))")
+        return True
 
     def _check_dirty_before_nav(self):
         if self.current_index < 0: return True
@@ -1963,7 +2002,7 @@ class Tagr(QMainWindow):
         msg.exec()
         clicked = msg.clickedButton()
         if clicked == cancel_btn: return False
-        if clicked == save_btn: self._save_current()
+        if clicked == save_btn: return self._save_current()
         return True
 
 
@@ -2024,6 +2063,9 @@ class Tagr(QMainWindow):
         if d.exec() != QDialog.DialogCode.Accepted: return
 
         if overwrite_chk.isChecked():
+            ok, backup = backup_audio_file(path, "normalize")
+            if not ok:
+                self._flash(f"Sauvegarde impossible : {backup}", err=True); return
             import tempfile
             tmp_out = tempfile.mktemp(suffix=os.path.splitext(path)[1])
         else:
@@ -2202,6 +2244,7 @@ class Tagr(QMainWindow):
         targets = self.rows if all_chk.isChecked() else (
             [self.rows[self.current_index]] if self.current_index >= 0 else [])
         renamed = 0
+        skipped = 0
         for row in targets:
             path = row.path
             tags = self.tags_cache.get(path) or read_tags(path)
@@ -2218,6 +2261,10 @@ class Tagr(QMainWindow):
             if new_path == path: continue
             if os.path.exists(new_path): continue
             try:
+                ok, backup = backup_audio_file(path, "batch_rename")
+                if not ok:
+                    skipped += 1
+                    continue
                 os.rename(path, new_path)
                 idx = self.rows.index(row)
                 self.files[idx] = new_path
@@ -2227,8 +2274,12 @@ class Tagr(QMainWindow):
                                    tags.get("cover"))
                 subprocess.run(["mdimport", new_path], capture_output=True)
                 renamed += 1
-            except: pass
-        self._flash(f"{renamed} fichier(s) renomme(s)")
+            except:
+                skipped += 1
+        msg = f"{renamed} fichier(s) renomme(s)"
+        if skipped:
+            msg += f" · {skipped} ignore(s)"
+        self._flash(msg)
 
     def _show_shortcuts(self):
         from PyQt6.QtWidgets import QDialog
