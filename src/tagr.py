@@ -601,7 +601,7 @@ class FileRow(QFrame):
 
     def __init__(self,path):
         super().__init__()
-        self.path=path; self._selected=False; self._dirty=False
+        self.path=path; self._selected=False; self._dirty=False; self._hover=False
         self.setFixedHeight(60); self.setCursor(Qt.CursorShape.PointingHandCursor)
         self._build(); self._style(False)
 
@@ -638,9 +638,16 @@ class FileRow(QFrame):
         self._selected=val; self._style(val)
 
     def _style(self,sel):
-        bg=SELBG if sel else PANEL
+        bg=SELBG if sel else (PANEL2 if self._hover else PANEL)
         bl=f"border-left:2px solid {ACCENT};" if sel else "border-left:2px solid transparent;"
-        self.setStyleSheet(f"FileRow{{background:{bg};{bl}}}")
+        border=f"border-top:1px solid {BORDER};border-bottom:1px solid {BORDER};" if self._hover and not sel else ""
+        self.setStyleSheet(f"FileRow{{background:{bg};{bl}{border}}}")
+
+    def enterEvent(self,e):
+        self._hover=True; self._style(self._selected); super().enterEvent(e)
+
+    def leaveEvent(self,e):
+        self._hover=False; self._style(self._selected); super().leaveEvent(e)
 
     def mousePressEvent(self,e):
         if e.button()==Qt.MouseButton.LeftButton: self.selected_signal.emit(self)
@@ -1437,27 +1444,34 @@ class Tagr(QMainWindow):
         bl=QHBoxLayout(bar); bl.setContentsMargins(24,0,24,0)
         bl.addWidget(QLabel("Tagr",styleSheet=f"color:{TEXT};font-size:20px;font-weight:bold;"))
         bl.addStretch()
-        def top_btn(label, fn, w=None):
+        def top_btn(label, fn, w=None, role="secondary"):
             b = QPushButton(label)
-            b.setStyleSheet(f"background:{PANEL};color:{TEXTM};border:1px solid {BORDER};"
-                            f"border-radius:4px;font-size:9px;padding:3px 8px;")
+            if role == "primary":
+                b.setStyleSheet(f"QPushButton{{background:{ACCENT};color:#000;border:none;"
+                                f"border-radius:4px;font-size:10px;font-weight:bold;padding:5px 11px;}}"
+                                f"QPushButton:hover{{background:{ACCENT2};}}")
+            else:
+                b.setStyleSheet(f"QPushButton{{background:{PANEL};color:{TEXTM};border:1px solid {BORDER};"
+                                f"border-radius:4px;font-size:9px;padding:4px 8px;}}"
+                                f"QPushButton:hover{{background:{PANEL2};color:{TEXT};}}")
             b.setCursor(Qt.CursorShape.PointingHandCursor)
             b.clicked.connect(fn)
             if w: b.setFixedSize(w, 24)
             bl.addWidget(b)
             return b
 
-        top_btn("CSV", self._export_csv)
-        top_btn("Stats", self._show_stats)
         top_btn("Contrôle", self._show_spotify_control)
+        top_btn("Exporter Spotify", self._prepare_spotify_folder, role="primary")
         top_btn("Champs", self._batch_apply_fields)
         top_btn("Doublons", self._show_duplicates)
-        top_btn("Spotify", self._prepare_spotify_folder)
+        top_btn("Stats", self._show_stats)
+        top_btn("CSV", self._export_csv)
         self.album_btn = top_btn("Vue album", self._toggle_album_view)
         top_btn("Theme", self._toggle_theme)
         info_btn = top_btn("i", self._show_shortcuts, w=26)
-        info_btn.setStyleSheet(f"background:{PANEL};color:{TEXTM};border:1px solid {BORDER};"
-                               f"border-radius:13px;font-size:11px;font-weight:bold;")
+        info_btn.setStyleSheet(f"QPushButton{{background:{PANEL};color:{TEXTM};border:1px solid {BORDER};"
+                               f"border-radius:13px;font-size:11px;font-weight:bold;}}"
+                               f"QPushButton:hover{{background:{PANEL2};color:{TEXT};}}")
         main.addWidget(bar)
 
         body=QHBoxLayout(); body.setSpacing(0); body.setContentsMargins(0,0,0,0)
@@ -1561,27 +1575,37 @@ class Tagr(QMainWindow):
         top.addLayout(cc)
 
         bc=QVBoxLayout(); bc.setSpacing(6); bc.setAlignment(Qt.AlignmentFlag.AlignTop)
-        def abtn(txt,fn):
+        def section(txt):
+            lbl=QLabel(txt)
+            lbl.setStyleSheet(f"color:{TEXTD};font-size:8px;font-weight:bold;margin-top:7px;background:transparent;")
+            bc.addWidget(lbl)
+        def abtn(txt,fn,role="secondary"):
             b=QPushButton(txt)
-            b.setStyleSheet(f"background:{PANEL};color:{TEXTM};border:none;padding:9px 14px;"
-                            f"font-size:11px;text-align:left;border-radius:4px;")
+            if role == "primary":
+                b.setStyleSheet(f"QPushButton{{background:{ACCENT};color:#000;border:none;padding:10px 14px;"
+                                f"font-size:11px;font-weight:bold;text-align:left;border-radius:4px;}}"
+                                f"QPushButton:hover{{background:{ACCENT2};}}")
+            else:
+                b.setStyleSheet(f"QPushButton{{background:{PANEL};color:{TEXTM};border:1px solid transparent;padding:9px 14px;"
+                                f"font-size:11px;text-align:left;border-radius:4px;}}"
+                                f"QPushButton:hover{{background:{PANEL2};color:{TEXT};border:1px solid {BORDER};}}")
             b.setCursor(Qt.CursorShape.PointingHandCursor); b.clicked.connect(fn); bc.addWidget(b); return b
+        section("POCHETTE")
         abtn("Recherche de pochette",self._search_cover_smart)
-        self.play_btn=abtn("Ecouter",self._toggle_play)
         abtn("Exporter la pochette",self._export_cover)
-        sep=QFrame(); sep.setFrameShape(QFrame.Shape.HLine)
-        sep.setStyleSheet(f"color:{BORDER};"); bc.addWidget(sep)
+        section("LECTURE")
+        self.play_btn=abtn("Ecouter",self._toggle_play)
+        section("OUTILS AUDIO")
         abtn("Couper le morceau",self._open_trim)
-        sep2=QFrame(); sep2.setFrameShape(QFrame.Shape.HLine); sep2.setStyleSheet(f"color:{BORDER};"); bc.addWidget(sep2)
         abtn("Normaliser le volume",self._normalize_volume)
         abtn("Avant / Apres norm.",self._preview_before_after)
         abtn("Convertir le format",self._convert_format)
-        sep3=QFrame(); sep3.setFrameShape(QFrame.Shape.HLine); sep3.setStyleSheet(f"color:{BORDER};"); bc.addWidget(sep3)
+        section("SPOTIFY")
         abtn("Contrôle Spotify",self._show_spotify_control)
         abtn("Champs en lot",self._batch_apply_fields)
         abtn("Renommer par lot",self._batch_rename)
         abtn("Voir doublons",self._show_duplicates)
-        abtn("Exporter pour Spotify",self._prepare_spotify_folder)
+        abtn("Exporter pour Spotify",self._prepare_spotify_folder,role="primary")
         top.addLayout(bc,1)
         v.addLayout(top)
 
@@ -1602,6 +1626,11 @@ class Tagr(QMainWindow):
         ql.addWidget(self.qlbl_grade)
         ql.addWidget(self.qlbl_size)
         v.addWidget(self.quality_frame)
+
+        self.spotify_status_lbl = QLabel("Statut Spotify")
+        self.spotify_status_lbl.setStyleSheet(f"background:{PANEL};color:{TEXTD};border:1px solid {BORDER};"
+                                              f"border-radius:5px;padding:8px 12px;font-size:10px;margin-top:8px;")
+        v.addWidget(self.spotify_status_lbl)
 
         # Champs
         def field(label,attr):
@@ -1642,24 +1671,32 @@ class Tagr(QMainWindow):
         v.addLayout(row3)
 
         # Boutons bas
-        bot=QHBoxLayout(); bot.setSpacing(8); bot.setContentsMargins(0,20,0,0)
+        bot_wrap=QVBoxLayout(); bot_wrap.setSpacing(8); bot_wrap.setContentsMargins(0,20,0,0)
+        bot=QHBoxLayout(); bot.setSpacing(8)
         save=QPushButton("Sauvegarder")
-        save.setStyleSheet(f"background:{ACCENT};color:#000;font-weight:bold;font-size:12px;"
-                           f"border:none;padding:10px 28px;border-radius:5px;")
+        save.setStyleSheet(f"QPushButton{{background:{ACCENT};color:#000;font-weight:bold;font-size:12px;"
+                           f"border:none;padding:10px 28px;border-radius:5px;}}"
+                           f"QPushButton:hover{{background:{ACCENT2};}}")
         save.setCursor(Qt.CursorShape.PointingHandCursor); save.clicked.connect(self._save_current)
         save_next=QPushButton("Sauvegarder + suivant")
-        save_next.setStyleSheet(f"background:{ACCENT2};color:#000;font-weight:bold;font-size:11px;"
-                                f"border:none;padding:10px 16px;border-radius:5px;")
+        save_next.setStyleSheet(f"QPushButton{{background:{ACCENT2};color:#000;font-weight:bold;font-size:11px;"
+                                f"border:none;padding:10px 16px;border-radius:5px;}}"
+                                f"QPushButton:hover{{background:{ACCENT};}}")
         save_next.setCursor(Qt.CursorShape.PointingHandCursor); save_next.clicked.connect(self._save_and_next)
+        bot.addWidget(save); bot.addWidget(save_next); bot.addStretch()
+        bot2=QHBoxLayout(); bot2.setSpacing(8)
         save_issue=QPushButton("Sauver + problème suivant")
-        save_issue.setStyleSheet(f"background:{PANEL};color:{ACCENT};font-weight:bold;font-size:11px;"
-                                 f"border:1px solid {BORDER};padding:10px 14px;border-radius:5px;")
+        save_issue.setStyleSheet(f"QPushButton{{background:{PANEL};color:{ACCENT};font-weight:bold;font-size:11px;"
+                                 f"border:1px solid {BORDER};padding:9px 14px;border-radius:5px;}}"
+                                 f"QPushButton:hover{{background:{PANEL2};color:{TEXT};}}")
         save_issue.setCursor(Qt.CursorShape.PointingHandCursor); save_issue.clicked.connect(self._save_and_next_issue)
         save_all=QPushButton("Tout sauvegarder")
-        save_all.setStyleSheet(f"background:{PANEL};color:{TEXTM};font-size:11px;border:none;padding:10px 14px;border-radius:5px;")
+        save_all.setStyleSheet(f"QPushButton{{background:{PANEL};color:{TEXTM};font-size:11px;border:none;padding:9px 14px;border-radius:5px;}}"
+                               f"QPushButton:hover{{background:{PANEL2};color:{TEXT};}}")
         save_all.setCursor(Qt.CursorShape.PointingHandCursor); save_all.clicked.connect(self._save_all)
-        bot.addWidget(save); bot.addWidget(save_next); bot.addWidget(save_issue); bot.addWidget(save_all); bot.addStretch()
-        v.addLayout(bot)
+        bot2.addWidget(save_issue); bot2.addWidget(save_all); bot2.addStretch()
+        bot_wrap.addLayout(bot); bot_wrap.addLayout(bot2)
+        v.addLayout(bot_wrap)
 
         self.status_lbl=QLabel("")
         self.status_lbl.setStyleSheet(f"color:{ACCENT};font-size:10px;margin-top:6px;")
@@ -1748,6 +1785,7 @@ class Tagr(QMainWindow):
         self.play_btn.setText("Ecouter")
         # Qualité audio
         self._update_quality(path)
+        self._update_spotify_status()
 
 
     def _update_quality(self, path):
@@ -1780,8 +1818,36 @@ class Tagr(QMainWindow):
             if sz > 1_000_000: self.qlbl_size.setText(f"{sz/1_000_000:.1f} Mo")
             else: self.qlbl_size.setText(f"{sz/1000:.0f} Ko")
 
+    def _current_editor_tags(self):
+        return {
+            "title": self.field_title.text().strip(),
+            "artist": self.field_artist.text().strip(),
+            "album": self.field_album.text().strip(),
+            "year": self.field_year.text().strip(),
+            "genre": self.field_genre.text().strip(),
+            "bpm": self.field_bpm.text().strip(),
+            "track": self.field_track.text().strip(),
+            "cover": self.current_cover,
+        }
+
+    def _update_spotify_status(self):
+        if self.current_index < 0 or not hasattr(self, "spotify_status_lbl"):
+            return
+        path = self.files[self.current_index]
+        issues = self._spotify_issues(self._current_editor_tags(), path)
+        if issues:
+            self.spotify_status_lbl.setText("À vérifier Spotify : " + ", ".join(issues))
+            self.spotify_status_lbl.setStyleSheet(f"background:{PANEL};color:{WARN};border:1px solid {BORDER};"
+                                                  f"border-radius:5px;padding:8px 12px;font-size:10px;margin-top:8px;")
+        else:
+            self.spotify_status_lbl.setText("Prêt Spotify")
+            self.spotify_status_lbl.setStyleSheet(f"background:{SELBG};color:{ACCENT};border:1px solid {ACCENT};"
+                                                  f"border-radius:5px;padding:8px 12px;font-size:10px;font-weight:bold;margin-top:8px;")
+
     def _mark_dirty(self):
-        if self.current_index>=0: self.rows[self.current_index].set_dirty(True)
+        if self.current_index>=0:
+            self.rows[self.current_index].set_dirty(True)
+            self._update_spotify_status()
 
     # ── Supprimer ─────────────────────────────────────────────────────────────
 
@@ -1789,9 +1855,18 @@ class Tagr(QMainWindow):
         idx=self.rows.index(row); was=idx==self.current_index
         self.files.pop(idx); self.rows.pop(idx)
         self.list_layout.removeWidget(row); row.deleteLater()
-        if was: self.current_index=-1; self.right.show_empty()
-        elif self.current_index>idx: self.current_index-=1
-        if not self.files: self.hint.show()
+        if was:
+            self.current_index=-1
+            if self.rows:
+                next_idx=min(idx,len(self.rows)-1)
+                QTimer.singleShot(0, lambda r=self.rows[next_idx]: self._on_row_select(r))
+            else:
+                self.right.show_empty()
+        elif self.current_index>idx:
+            self.current_index-=1
+        if not self.files:
+            self.hint.show()
+        self._cfg["recent_files"]=[r.path for r in self.rows]; save_config(self._cfg)
         self._update_count()
 
     def _delete_selected(self):
