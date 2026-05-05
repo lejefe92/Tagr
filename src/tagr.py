@@ -2726,9 +2726,29 @@ class Tagr(QMainWindow):
 
 
 
-# ── Trim Dialog ───────────────────────────────────────────────────────────────
+# ── Entrypoint ────────────────────────────────────────────────────────────────
+
+APP_VERSION = "3.0"
+
+def _handle_cli_args(argv):
+    args = set(argv[1:])
+    if not args:
+        return False
+    if args & {"-h", "--help"}:
+        print("Tagr - Audio Metadata Editor")
+        print("Usage: tagr.py [--version] [--health-check]")
+        return True
+    if "--version" in args:
+        print(f"Tagr {APP_VERSION}")
+        return True
+    if "--health-check" in args:
+        print("Tagr health check OK")
+        return True
+    return False
 
 
 if __name__=="__main__":
+    if _handle_cli_args(sys.argv):
+        sys.exit(0)
     app=QApplication(sys.argv); app.setStyle("Fusion")
     win=Tagr(); win.show(); sys.exit(app.exec())
