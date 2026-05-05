@@ -616,13 +616,19 @@ class FileRow(QFrame):
         self.lbl_a=QLabel("—")
         self.lbl_a.setStyleSheet(f"color:{TEXTM};font-size:10px;background:transparent;")
         mid.addWidget(self.lbl_t); mid.addWidget(self.lbl_a); lay.addLayout(mid,1)
-        right=QVBoxLayout(); right.setSpacing(2); right.setAlignment(Qt.AlignmentFlag.AlignRight)
+        right=QVBoxLayout(); right.setSpacing(4); right.setAlignment(Qt.AlignmentFlag.AlignVCenter)
         self.dot=QLabel("●"); self.dot.setStyleSheet("color:transparent;font-size:7px;background:transparent;")
-        self.dot.setAlignment(Qt.AlignmentFlag.AlignRight)
+        self.dot.setAlignment(Qt.AlignmentFlag.AlignCenter)
         ext=os.path.splitext(self.path)[1].lstrip(".").upper()
-        badge=QLabel(ext); badge.setStyleSheet(f"color:{TEXTD};font-size:8px;font-family:'Courier New';"
-                                                f"background:{PANEL2};padding:2px 5px;border-radius:3px;")
-        right.addWidget(self.dot); right.addWidget(badge); lay.addLayout(right)
+        badge=QLabel(ext)
+        badge.setStyleSheet(f"color:{TEXTD};font-size:8px;font-family:'Courier New';"
+                            f"background:transparent;padding:0;")
+        badge.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        badge.setFixedWidth(32)
+        right.addWidget(self.dot); right.addWidget(badge)
+        right.setAlignment(self.dot, Qt.AlignmentFlag.AlignCenter)
+        right.setAlignment(badge, Qt.AlignmentFlag.AlignCenter)
+        lay.addLayout(right)
 
     def set_display(self,title,artist,cover=None):
         self.lbl_t.setText(title or os.path.basename(self.path))
@@ -1345,6 +1351,15 @@ class Tagr(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Tagr"); self.resize(1060,720); self.setMinimumSize(820,560)
+        # Titlebar macOS transparente — on dessine notre propre barre
+        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, False)
+        try:
+            # Masquer la titlebar native et étendre le contenu dans la zone de titre
+            from PyQt6.QtCore import Qt as _Qt
+            self.setWindowFlag(_Qt.WindowType.FramelessWindowHint, False)
+            # Utiliser le style macOS sans titlebar visible
+            self.setUnifiedTitleAndToolBarOnMac(True)
+        except: pass
         self.setStyleSheet(f"QMainWindow{{background:{BG};}}")
         self.setAcceptDrops(True)
         self.files=[]; self.rows=[]; self.current_index=-1
@@ -1397,10 +1412,10 @@ class Tagr(QMainWindow):
                 self.list_widget.setStyleSheet(f"background:{SELBG};border-right:1px solid {BORDER};")
 
     def dragLeaveEvent(self,e):
-        self.list_widget.setStyleSheet(f"background:{BG2};border-right:1px solid {BORDER};")
+        self.list_widget.setStyleSheet(f"background:{BG2};")
 
     def dropEvent(self,e):
-        self.list_widget.setStyleSheet(f"background:{BG2};border-right:1px solid {BORDER};")
+        self.list_widget.setStyleSheet(f"background:{BG2};")
         for url in e.mimeData().urls():
             path=url.toLocalFile()
             if os.path.isdir(path): self._add_folder(path)
@@ -1408,19 +1423,31 @@ class Tagr(QMainWindow):
                 self.files.append(path); self._add_row(path)
         self._update_count(); e.acceptProposedAction()
 
+    def contextMenuEvent(self, e):
+        # Clic droit sur la colonne gauche → ajouter
+        if self.list_widget.geometry().contains(e.pos()):
+            from PyQt6.QtWidgets import QMenu
+            m = QMenu(self)
+            m.setStyleSheet(
+                f"QMenu{{background:{PANEL2};color:{TEXT};border:1px solid {BORDER};padding:4px;}}"
+                f"QMenu::item{{padding:8px 18px;font-size:11px;}}"
+                f"QMenu::item:selected{{background:{PANEL};color:{TEXT};}}")
+            m.addAction("Ajouter des fichiers…", self._browse_files)
+            m.addAction("Ajouter un dossier…", self._browse_folder)
+            m.exec(e.globalPos())
+        else:
+            super().contextMenuEvent(e)
+
+    def _browse_folder(self):
+        folder = QFileDialog.getExistingDirectory(self, "Choisir un dossier audio")
+        if folder: self._add_folder(folder)
+
     def _add_folder(self,folder):
         for root,_,fnames in os.walk(folder):
             for f in sorted(fnames):
                 p=os.path.join(root,f)
                 if is_audio(p) and p not in self.files:
                     self.files.append(p); self._add_row(p)
-
-    def keyPressEvent(self,e):
-        if e.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
-            focused=QApplication.focusWidget()
-            if not isinstance(focused, QLineEdit):
-                self._save_current()
-        else: super().keyPressEvent(e)
 
     # ── Navigation clavier ────────────────────────────────────────────────────
 
@@ -1439,39 +1466,22 @@ class Tagr(QMainWindow):
         main=QVBoxLayout(root); main.setContentsMargins(0,0,0,0); main.setSpacing(0)
 
         # Barre titre
-        bar=QFrame(); bar.setFixedHeight(54)
+        bar=QFrame(); bar.setFixedHeight(52)
         bar.setStyleSheet(f"background:{BG};border-bottom:1px solid {BORDER};")
-        bl=QHBoxLayout(bar); bl.setContentsMargins(24,0,24,0)
-        bl.addWidget(QLabel("Tagr",styleSheet=f"color:{TEXT};font-size:20px;font-weight:bold;"))
-        bl.addStretch()
-        def top_btn(label, fn, w=None, role="secondary"):
-            b = QPushButton(label)
-            if role == "primary":
-                b.setStyleSheet(f"QPushButton{{background:{ACCENT};color:#000;border:none;"
-                                f"border-radius:4px;font-size:10px;font-weight:bold;padding:5px 11px;}}"
-                                f"QPushButton:hover{{background:{ACCENT2};}}")
-            else:
-                b.setStyleSheet(f"QPushButton{{background:{PANEL};color:{TEXTM};border:1px solid {BORDER};"
-                                f"border-radius:4px;font-size:9px;padding:4px 8px;}}"
-                                f"QPushButton:hover{{background:{PANEL2};color:{TEXT};}}")
-            b.setCursor(Qt.CursorShape.PointingHandCursor)
-            b.clicked.connect(fn)
-            if w: b.setFixedSize(w, 24)
-            bl.addWidget(b)
-            return b
-
-        top_btn("Contrôle", self._show_spotify_control)
-        top_btn("Exporter Spotify", self._prepare_spotify_folder, role="primary")
-        top_btn("Champs", self._batch_apply_fields)
-        top_btn("Doublons", self._show_duplicates)
-        top_btn("Stats", self._show_stats)
-        top_btn("CSV", self._export_csv)
-        self.album_btn = top_btn("Vue album", self._toggle_album_view)
-        top_btn("Theme", self._toggle_theme)
-        info_btn = top_btn("i", self._show_shortcuts, w=26)
+        bl=QHBoxLayout(bar); bl.setContentsMargins(16,0,16,0)
+        logo=QLabel("Tagr")
+        logo.setStyleSheet(f"color:{TEXT};font-size:22px;font-weight:bold;letter-spacing:1px;")
+        logo.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        bl.addStretch(1); bl.addWidget(logo); bl.addStretch(1)
+        info_btn=QPushButton("i")
+        info_btn.setFixedSize(26,26)
         info_btn.setStyleSheet(f"QPushButton{{background:{PANEL};color:{TEXTM};border:1px solid {BORDER};"
                                f"border-radius:13px;font-size:11px;font-weight:bold;}}"
                                f"QPushButton:hover{{background:{PANEL2};color:{TEXT};}}")
+        info_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        info_btn.clicked.connect(self._show_shortcuts)
+        bl.addWidget(info_btn)
+        self.album_btn = None
         main.addWidget(bar)
 
         body=QHBoxLayout(); body.setSpacing(0); body.setContentsMargins(0,0,0,0)
@@ -1480,41 +1490,49 @@ class Tagr(QMainWindow):
         # ── Colonne gauche ──
         self.list_widget=QFrame()
         self.list_widget.setFixedWidth(290)
-        self.list_widget.setStyleSheet(f"background:{BG2};border-right:1px solid {BORDER};")
+        self.list_widget.setStyleSheet(f"background:{BG2};")
         lv=QVBoxLayout(self.list_widget); lv.setContentsMargins(0,0,0,0); lv.setSpacing(0)
 
-        # Header
-        hdr=QFrame(); hdr.setFixedHeight(48)
-        hdr.setStyleSheet(f"background:{BG2};border-bottom:1px solid {BORDER};")
-        hl=QHBoxLayout(hdr); hl.setContentsMargins(12,0,12,0)
-        self.count_lbl=QLabel("Aucun fichier",styleSheet=f"color:{TEXTD};font-size:10px;")
-        add_btn=QPushButton("+ Ajouter")
-        add_btn.setStyleSheet(f"background:{ACCENT};color:#000;font-weight:bold;font-size:10px;"
-                              f"border:none;padding:4px 10px;border-radius:4px;")
-        add_btn.setCursor(Qt.CursorShape.PointingHandCursor); add_btn.clicked.connect(self._browse_files)
-        hl.addWidget(self.count_lbl); hl.addStretch(); hl.addWidget(add_btn)
-        lv.addWidget(hdr)
+        # Header : filtre dropdown + bouton + rond
+        hdr=QFrame(); hdr.setFixedHeight(44)
+        hdr.setStyleSheet(f"background:{BG2};")
+        hl=QHBoxLayout(hdr); hl.setContentsMargins(10,4,10,4); hl.setSpacing(8)
 
-        # Filtre + tri
-        ctrl=QFrame(); ctrl.setStyleSheet(f"background:{BG2};border-bottom:1px solid {BORDER};")
-        cl=QVBoxLayout(ctrl); cl.setContentsMargins(10,8,10,8); cl.setSpacing(6)
+        # Dropdown TRI : A→Z / Artiste / Album / Titre
+        self.filter_field=QComboBox()
+        self.filter_field.addItems(["A → Z","Artiste","Album","Titre"])
+        self.filter_field.setStyleSheet(
+            f"QComboBox{{background:{FIELDBG};color:{TEXTM};border:1px solid {BORDER};"
+            f"border-radius:6px;padding:4px 8px;font-size:10px;}}"
+            f"QComboBox QAbstractItemView{{background:{PANEL2};color:{TEXT};border:1px solid {BORDER};}}"
+            f"QComboBox::drop-down{{border:none;width:16px;}}")
+        self.filter_field.currentIndexChanged.connect(self._apply_sort)
 
-        self.filter_input=QLineEdit(); self.filter_input.setPlaceholderText("Filtrer les fichiers…")
-        self.filter_input.setStyleSheet(f"background:{FIELDBG};color:{TEXT};border:1px solid {BORDER};"
-                                         f"border-radius:4px;padding:5px 8px;font-size:11px;")
+        # Champ filtre texte (caché — conservé pour _apply_filter)
+        self.filter_input=QLineEdit()
+        self.filter_input.hide()
         self.filter_input.textChanged.connect(self._apply_filter)
 
-        sort_row=QHBoxLayout(); sort_row.setSpacing(6)
-        sort_lbl=QLabel("Tri :"); sort_lbl.setStyleSheet(f"color:{TEXTD};font-size:9px;")
+        # Sort combo caché conservé pour compatibilité
         self.sort_combo=QComboBox()
-        self.sort_combo.addItems(["Nom","Artiste","Non sauvegardés"])
-        self.sort_combo.setStyleSheet(f"background:{FIELDBG};color:{TEXT};border:1px solid {BORDER};"
-                                      f"border-radius:4px;padding:3px 6px;font-size:10px;")
-        self.sort_combo.currentIndexChanged.connect(self._apply_sort)
-        sort_row.addWidget(sort_lbl); sort_row.addWidget(self.sort_combo,1)
+        self.sort_combo.hide()
 
-        cl.addWidget(self.filter_input); cl.addLayout(sort_row)
-        lv.addWidget(ctrl)
+        # count_lbl caché conservé pour la logique
+        self.count_lbl=QLabel(""); self.count_lbl.hide()
+
+        # Bouton + rond (style bouton i)
+        add_round=QPushButton("+")
+        add_round.setFixedSize(28,28)
+        add_round.setStyleSheet(
+            f"QPushButton{{background:{PANEL};color:{TEXTM};border:1px solid {BORDER};"
+            f"border-radius:14px;font-size:16px;font-weight:bold;padding:0;}}"
+            f"QPushButton:hover{{background:{ACCENT};color:#000;border-color:{ACCENT};}}")
+        add_round.setCursor(Qt.CursorShape.PointingHandCursor)
+        add_round.clicked.connect(self._browse_files)
+
+        hl.addWidget(self.filter_field, 1)
+        hl.addWidget(add_round)
+        lv.addWidget(hdr)
 
         # Liste
         scroll=QScrollArea(); scroll.setWidgetResizable(True)
@@ -1529,17 +1547,29 @@ class Tagr(QMainWindow):
         self.list_layout.addStretch()
         scroll.setWidget(self.list_container); lv.addWidget(scroll,1)
         self._scroll_area = scroll
+        # Clic sur zone vide → désélectionner
+        self.list_container.mouseDoubleClickEvent = lambda e: self._browse_files()
+        def _list_click(e):
+            # Si clic sur fond (pas sur une row), désélectionner
+            child = self.list_container.childAt(e.pos())
+            if child is None or child == self.list_container:
+                self._deselect_all()
+        self.list_container.mousePressEvent = _list_click
 
-        self.hint=QLabel("Glisse des fichiers audio\nou un dossier entier ici\n\nMP3  FLAC  M4A  AAC")
+        self.hint=QLabel("Glisse des fichiers audio\nou un dossier entier ici\n\nMP3  FLAC  M4A  AAC  OGG")
         self.hint.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.hint.setStyleSheet(f"color:{TEXTD};font-size:11px;padding:40px 16px;background:{BG2};")
+        self.hint.mouseDoubleClickEvent = lambda e: self._browse_files()
         self.list_layout.insertWidget(0,self.hint)
+        # Double-clic sur la zone scrollable pour ajouter
+        self.list_container.mouseDoubleClickEvent = lambda e: self._browse_files()
 
         body.addWidget(self.list_widget)
 
         # ── Colonne droite ──
         self.right=StackPanel(); body.addWidget(self.right,1)
         self._build_empty(); self._build_editor()
+        self.right.show_empty()  # afficher l'état vide à l'ouverture
 
     def _build_empty(self):
         w=QWidget(); w.setStyleSheet(f"background:{BG};")
@@ -1571,41 +1601,57 @@ class Tagr(QMainWindow):
         sub.setStyleSheet(f"color:{TEXTD};font-size:9px;"); sub.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.cover_info=QLabel("")
         self.cover_info.setStyleSheet(f"color:{TEXTD};font-size:8px;"); self.cover_info.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        # Bouton recadrer
+        crop_btn=QPushButton("Recadrer")
+        crop_btn.setStyleSheet(
+            f"QPushButton{{background:{PANEL};color:{TEXTM};border:1px solid {BORDER};"
+            f"border-radius:4px;font-size:9px;padding:4px 10px;}}"
+            f"QPushButton:hover{{background:{PANEL2};color:{TEXT};}}")
+        crop_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        crop_btn.clicked.connect(self._crop_current_cover)
         cc.addWidget(self.cover_lbl); cc.addWidget(sub); cc.addWidget(self.cover_info)
+        cc.addWidget(crop_btn)
         top.addLayout(cc)
 
         bc=QVBoxLayout(); bc.setSpacing(6); bc.setAlignment(Qt.AlignmentFlag.AlignTop)
+
         def section(txt):
             lbl=QLabel(txt)
             lbl.setStyleSheet(f"color:{TEXTD};font-size:8px;font-weight:bold;margin-top:7px;background:transparent;")
             bc.addWidget(lbl)
-        def abtn(txt,fn,role="secondary"):
+
+        def abtn(txt, fn, role="secondary"):
             b=QPushButton(txt)
-            if role == "primary":
+            if role=="primary":
                 b.setStyleSheet(f"QPushButton{{background:{ACCENT};color:#000;border:none;padding:10px 14px;"
                                 f"font-size:11px;font-weight:bold;text-align:left;border-radius:4px;}}"
                                 f"QPushButton:hover{{background:{ACCENT2};}}")
             else:
-                b.setStyleSheet(f"QPushButton{{background:{PANEL};color:{TEXTM};border:1px solid transparent;padding:9px 14px;"
-                                f"font-size:11px;text-align:left;border-radius:4px;}}"
+                b.setStyleSheet(f"QPushButton{{background:{PANEL};color:{TEXTM};border:1px solid transparent;"
+                                f"padding:9px 14px;font-size:11px;text-align:left;border-radius:4px;}}"
                                 f"QPushButton:hover{{background:{PANEL2};color:{TEXT};border:1px solid {BORDER};}}")
             b.setCursor(Qt.CursorShape.PointingHandCursor); b.clicked.connect(fn); bc.addWidget(b); return b
+
         section("POCHETTE")
-        abtn("Recherche de pochette",self._search_cover_smart)
-        abtn("Exporter la pochette",self._export_cover)
+        abtn("Recherche de pochette", self._search_cover_smart)
+        abtn("Exporter la pochette", self._export_cover)
+
         section("LECTURE")
-        self.play_btn=abtn("Ecouter",self._toggle_play)
+        self.play_btn=abtn("Ecouter", self._toggle_play)
+
         section("OUTILS AUDIO")
-        abtn("Couper le morceau",self._open_trim)
-        abtn("Normaliser le volume",self._normalize_volume)
-        abtn("Avant / Apres norm.",self._preview_before_after)
-        abtn("Convertir le format",self._convert_format)
-        section("SPOTIFY")
-        abtn("Contrôle Spotify",self._show_spotify_control)
-        abtn("Champs en lot",self._batch_apply_fields)
-        abtn("Renommer par lot",self._batch_rename)
-        abtn("Voir doublons",self._show_duplicates)
-        abtn("Exporter pour Spotify",self._prepare_spotify_folder,role="primary")
+        # Menu déroulant pour les outils audio
+        self._audio_tools_btn=QPushButton("Outils audio…")
+        self._audio_tools_btn.setStyleSheet(
+            f"QPushButton{{background:{PANEL};color:{TEXTM};border:1px solid transparent;"
+            f"padding:9px 14px;font-size:11px;text-align:left;border-radius:4px;}}"
+            f"QPushButton:hover{{background:{PANEL2};color:{TEXT};border:1px solid {BORDER};}}")
+        self._audio_tools_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._audio_tools_btn.clicked.connect(self._show_audio_tools_menu)
+        bc.addWidget(self._audio_tools_btn)
+
+
+
         top.addLayout(bc,1)
         v.addLayout(top)
 
@@ -1647,55 +1693,20 @@ class Tagr(QMainWindow):
         field("ARTISTE", "field_artist")
         field("ALBUM",   "field_album")
 
-        # Ligne année / genre / bpm
-        row3=QHBoxLayout(); row3.setSpacing(12)
-        def small_field(label,attr,placeholder=""):
-            col=QVBoxLayout(); col.setSpacing(3)
-            lbl=QLabel(label); lbl.setStyleSheet(f"color:{TEXTD};font-size:9px;margin-top:12px;")
-            e=QLineEdit(); e.setPlaceholderText(placeholder)
-            e.setStyleSheet(f"background:{FIELDBG};color:{TEXT};border:1px solid {BORDER};"
-                            f"border-radius:4px;padding:9px 10px;font-size:12px;"
-                            f"selection-background-color:{ACCENT};selection-color:#000;")
-            e.textChanged.connect(self._mark_dirty); setattr(self,attr,e)
-            col.addWidget(lbl); col.addWidget(e); row3.addLayout(col)
-        small_field("PISTE","field_track","1/12")
-        small_field("ANNEE","field_year","2024")
-        small_field("GENRE","field_genre","Pop")
-        small_field("BPM",  "field_bpm", "120")
-        bpm_btn = QPushButton("Detecter")
-        bpm_btn.setStyleSheet(f"background:{PANEL};color:{ACCENT};border:1px solid {BORDER};"
-                              f"border-radius:4px;font-size:9px;padding:3px 8px;margin-top:12px;")
-        bpm_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        bpm_btn.clicked.connect(self._detect_bpm)
-        row3.addWidget(bpm_btn)
-        v.addLayout(row3)
+        # Champs cachés pour compatibilité (non affichés mais utilisés en lecture/écriture)
+        for attr in ["field_track","field_year","field_genre","field_bpm"]:
+            e = QLineEdit(); e.hide()
+            e.textChanged.connect(self._mark_dirty); setattr(self, attr, e)
 
-        # Boutons bas
-        bot_wrap=QVBoxLayout(); bot_wrap.setSpacing(8); bot_wrap.setContentsMargins(0,20,0,0)
-        bot=QHBoxLayout(); bot.setSpacing(8)
+        # Bouton sauvegarder pleine largeur
+        bot_wrap=QVBoxLayout(); bot_wrap.setContentsMargins(0,20,0,0)
         save=QPushButton("Sauvegarder")
         save.setStyleSheet(f"QPushButton{{background:{ACCENT};color:#000;font-weight:bold;font-size:12px;"
-                           f"border:none;padding:10px 28px;border-radius:5px;}}"
+                           f"border:none;padding:12px;border-radius:5px;}}"
                            f"QPushButton:hover{{background:{ACCENT2};}}")
-        save.setCursor(Qt.CursorShape.PointingHandCursor); save.clicked.connect(self._save_current)
-        save_next=QPushButton("Sauvegarder + suivant")
-        save_next.setStyleSheet(f"QPushButton{{background:{ACCENT2};color:#000;font-weight:bold;font-size:11px;"
-                                f"border:none;padding:10px 16px;border-radius:5px;}}"
-                                f"QPushButton:hover{{background:{ACCENT};}}")
-        save_next.setCursor(Qt.CursorShape.PointingHandCursor); save_next.clicked.connect(self._save_and_next)
-        bot.addWidget(save); bot.addWidget(save_next); bot.addStretch()
-        bot2=QHBoxLayout(); bot2.setSpacing(8)
-        save_issue=QPushButton("Sauver + problème suivant")
-        save_issue.setStyleSheet(f"QPushButton{{background:{PANEL};color:{ACCENT};font-weight:bold;font-size:11px;"
-                                 f"border:1px solid {BORDER};padding:9px 14px;border-radius:5px;}}"
-                                 f"QPushButton:hover{{background:{PANEL2};color:{TEXT};}}")
-        save_issue.setCursor(Qt.CursorShape.PointingHandCursor); save_issue.clicked.connect(self._save_and_next_issue)
-        save_all=QPushButton("Tout sauvegarder")
-        save_all.setStyleSheet(f"QPushButton{{background:{PANEL};color:{TEXTM};font-size:11px;border:none;padding:9px 14px;border-radius:5px;}}"
-                               f"QPushButton:hover{{background:{PANEL2};color:{TEXT};}}")
-        save_all.setCursor(Qt.CursorShape.PointingHandCursor); save_all.clicked.connect(self._save_all)
-        bot2.addWidget(save_issue); bot2.addWidget(save_all); bot2.addStretch()
-        bot_wrap.addLayout(bot); bot_wrap.addLayout(bot2)
+        save.setCursor(Qt.CursorShape.PointingHandCursor)
+        save.clicked.connect(self._save_current)
+        bot_wrap.addWidget(save)
         v.addLayout(bot_wrap)
 
         self.status_lbl=QLabel("")
@@ -1739,24 +1750,41 @@ class Tagr(QMainWindow):
 
     # ── Filtre & tri ──────────────────────────────────────────────────────────
 
-    def _apply_filter(self):
-        txt=self.filter_input.text().lower()
-        for row in self.rows:
-            tags=self.tags_cache.get(row.path,{})
-            match=(txt in os.path.basename(row.path).lower() or
-                   txt in tags.get("title","").lower() or
-                   txt in tags.get("artist","").lower())
-            row.setVisible(not txt or match)
 
-    def _apply_sort(self):
-        idx=self.sort_combo.currentIndex()
-        if idx==0: key=lambda r:(os.path.basename(r.path).lower(),)
-        elif idx==1: key=lambda r:(self.tags_cache.get(r.path,{}).get("artist","").lower(),)
-        else: key=lambda r:(not r._dirty,)
-        sorted_rows=sorted(self.rows,key=key)
+    def _apply_filter(self):
+        txt = self.filter_input.text().lower().strip()
+        field_idx = self.filter_field.currentIndex() if hasattr(self, "filter_field") else 0
+        for row in self.rows:
+            if not txt:
+                row.setVisible(True); continue
+            tags = self.tags_cache.get(row.path, {})
+            if field_idx == 1:   # Artiste
+                match = txt in tags.get("artist","").lower()
+            elif field_idx == 2: # Album
+                match = txt in tags.get("album","").lower()
+            elif field_idx == 3: # Titre
+                match = txt in tags.get("title","").lower()
+            else:                # Tout
+                match = (txt in os.path.basename(row.path).lower() or
+                         txt in tags.get("title","").lower() or
+                         txt in tags.get("artist","").lower() or
+                         txt in tags.get("album","").lower())
+            row.setVisible(match)
+
+    def _apply_sort(self, _=None):
+        idx = self.filter_field.currentIndex() if hasattr(self, "filter_field") else 0
+        if idx == 1:   # Artiste
+            key = lambda r: self.tags_cache.get(r.path,{}).get("artist","").lower()
+        elif idx == 2: # Album
+            key = lambda r: self.tags_cache.get(r.path,{}).get("album","").lower()
+        elif idx == 3: # Titre
+            key = lambda r: self.tags_cache.get(r.path,{}).get("title","").lower()
+        else:          # A→Z (nom de fichier)
+            key = lambda r: os.path.basename(r.path).lower()
+        sorted_rows = sorted(self.rows, key=key)
         for r in sorted_rows:
             self.list_layout.removeWidget(r)
-            self.list_layout.insertWidget(self.list_layout.count()-1,r)
+            self.list_layout.insertWidget(self.list_layout.count()-1, r)
 
     # ── Sélection ─────────────────────────────────────────────────────────────
 
@@ -1765,7 +1793,19 @@ class Tagr(QMainWindow):
         if self.current_index>=0: self.rows[self.current_index].set_selected(False)
         idx=self.rows.index(row); self.current_index=idx; row.set_selected(True)
         # Auto-scroll vers le fichier sélectionné
-        QTimer.singleShot(50, lambda: self._scroll_area.ensureWidgetVisible(row))
+        # Scroll vertical uniquement — ensureWidgetVisible peut décaler horizontalement
+        def _scroll_to_row():
+            try:
+                sb = self._scroll_area.verticalScrollBar()
+                row_y = row.mapTo(self._scroll_area.widget(), row.rect().topLeft()).y()
+                visible_h = self._scroll_area.viewport().height()
+                cur = sb.value()
+                if row_y < cur:
+                    sb.setValue(max(0, row_y - 8))
+                elif row_y + row.height() > cur + visible_h:
+                    sb.setValue(row_y + row.height() - visible_h + 8)
+            except: pass
+        QTimer.singleShot(50, _scroll_to_row)
         path=self.files[idx]
         tags=self.tags_cache.get(path) or read_tags(path)
         self.tags_cache[path]=tags
@@ -1961,26 +2001,80 @@ class Tagr(QMainWindow):
     # ── Sauvegarder ───────────────────────────────────────────────────────────
 
     def _save_current(self):
-        if self.current_index<0: return True
-        path=self.files[self.current_index]
-        title=self.field_title.text().strip(); artist=self.field_artist.text().strip()
-        album=self.field_album.text().strip(); year=self.field_year.text().strip()
-        genre=self.field_genre.text().strip(); bpm=self.field_bpm.text().strip()
-        track=self.field_track.text().strip()
-        ok, backup = backup_audio_file(path, "tags")
-        if not ok:
-            self._flash(f"Sauvegarde impossible : {backup}", err=True); return False
-        res=write_tags(path,title,artist,album,year,genre,bpm,track,self.current_cover)
+        if self.current_index < 0: return True
+        path  = self.files[self.current_index]
+        title = self.field_title.text().strip()
+        artist= self.field_artist.text().strip()
+        album = self.field_album.text().strip()
+        year  = self.field_year.text().strip()
+        genre = self.field_genre.text().strip()
+        bpm   = self.field_bpm.text().strip()
+        track = self.field_track.text().strip()
+
+        # Dialog : écraser ou créer nouveau fichier
+        from PyQt6.QtWidgets import QMessageBox
+        msg = QMessageBox(self)
+        msg.setWindowTitle("Sauvegarder")
+        msg.setText(f"Comment sauvegarder les modifications ?")
+        msg.setInformativeText(os.path.basename(path))
+        msg.setStyleSheet(f"background:{BG2};color:{TEXT};")
+        overwrite_btn = msg.addButton("Écraser le fichier", QMessageBox.ButtonRole.AcceptRole)
+        new_btn       = msg.addButton("Créer un nouveau fichier", QMessageBox.ButtonRole.ActionRole)
+        cancel_btn    = msg.addButton("Annuler", QMessageBox.ButtonRole.RejectRole)
+        msg.exec()
+        clicked = msg.clickedButton()
+        if clicked == cancel_btn: return False
+
+        ext = os.path.splitext(path)[1]
+        folder = os.path.dirname(path)
+
+        if clicked == new_btn:
+            # Nom basé sur Artiste - Titre
+            new_name = safe_fn(f"{artist} - {title}" if artist and title
+                               else (title or artist or os.path.splitext(os.path.basename(path))[0]))
+            out = os.path.join(folder, new_name + ext)
+            # Éviter les conflits de nom
+            i = 1
+            while os.path.exists(out) and out != path:
+                out = os.path.join(folder, f"{new_name}_{i}{ext}"); i += 1
+            try:
+                import shutil
+                shutil.copy2(path, out)
+                target = out
+            except Exception as e:
+                self._flash(f"Erreur copie : {e}", err=True); return False
+        else:
+            # Écraser : renommer aussi le fichier en Artiste - Titre si les tags changent
+            if artist or title:
+                new_name = safe_fn(f"{artist} - {title}" if artist and title
+                                   else (title or artist or os.path.splitext(os.path.basename(path))[0]))
+                new_path = os.path.join(folder, new_name + ext)
+                if new_path != path and not os.path.exists(new_path):
+                    try:
+                        os.rename(path, new_path)
+                        self.files[self.current_index] = new_path
+                        self.rows[self.current_index].path = new_path
+                        self.tags_cache.pop(path, None)
+                        path = new_path
+                    except: pass
+            target = path
+
+        res = write_tags(target, title, artist, album, year, genre, bpm, track, self.current_cover)
         if res is True:
-            self.tags_cache[path]={"title":title,"artist":artist,"album":album,
-                                   "year":year,"genre":genre,"bpm":bpm,"track":track,"cover":self.current_cover}
-            self.rows[self.current_index].set_display(title,artist,self.current_cover)
+            self.tags_cache[target] = {"title":title,"artist":artist,"album":album,
+                                       "year":year,"genre":genre,"bpm":bpm,"track":track,
+                                       "cover":self.current_cover}
+            self.rows[self.current_index].set_display(title, artist, self.current_cover)
             self.rows[self.current_index].set_dirty(False)
-            subprocess.run(["mdimport",path],capture_output=True)
-            self._flash("Sauvegardé")
+            # Mettre à jour le Finder
+            subprocess.run(["mdimport", target], capture_output=True)
+            if clicked == new_btn:
+                self._flash(f"Créé : {os.path.basename(target)}")
+            else:
+                self._flash(f"Sauvegardé : {os.path.basename(target)}")
             return True
         else:
-            self._flash(f"Erreur : {res}",err=True)
+            self._flash(f"Erreur : {res}", err=True)
             return False
 
     def _save_and_next(self):
@@ -2733,7 +2827,8 @@ class Tagr(QMainWindow):
             ("Cmd+S",           "Sauvegarder"),
             ("Cmd+Shift+S",     "Tout sauvegarder"),
             ("Cmd+Z",           "Annuler les modifications"),
-            ("Bouton Spotify",  "Exporter les copies prêtes pour Spotify"),
+            ("Outils audio…",   "Couper, Normaliser, Convertir, Renommer"),
+            ("Bouton Spotify",   "Exporter les copies prêtes pour Spotify"),
             ("Entree",          "Sauvegarder"),
             ("Espace",          "Lecture / Pause"),
             ("Haut / Bas",      "Fichier precedent / suivant"),
@@ -2962,7 +3057,8 @@ class Tagr(QMainWindow):
         self._rebuild_stylesheet()
 
     def _rebuild_stylesheet(self):
-        self.setStyleSheet(f"QMainWindow{{background:{BG};}}")
+        self.setStyleSheet(f"QMainWindow{{background:{BG};}}"
+        )  # fond unifié
         # Rebuild barre titre
         for w in self.findChildren(QFrame):
             try:
@@ -3114,10 +3210,10 @@ class Tagr(QMainWindow):
         self._album_view = not getattr(self, "_album_view", False)
         if self._album_view:
             self._build_album_view()
-            self.album_btn.setText("Vue liste")
+            if self.album_btn: self.album_btn.setText("Vue liste")
         else:
             self._clear_album_groups()
-            self.album_btn.setText("Vue album")
+            if self.album_btn: self.album_btn.setText("Vue album")
 
     def _build_album_view(self):
         self._clear_album_groups()
@@ -3249,6 +3345,55 @@ class Tagr(QMainWindow):
         close.setCursor(Qt.CursorShape.PointingHandCursor)
         close.clicked.connect(d.accept)
         v.addWidget(close, alignment=Qt.AlignmentFlag.AlignCenter)
+        d.exec()
+
+
+    def _show_audio_tools_menu(self):
+        from PyQt6.QtWidgets import QMenu
+        menu = QMenu(self)
+        menu.setStyleSheet(
+            f"QMenu{{background:{PANEL2};color:{TEXT};border:1px solid {BORDER};padding:4px;}}"
+            f"QMenu::item{{padding:8px 20px;font-size:11px;}}"
+            f"QMenu::item:selected{{background:{PANEL};color:{TEXT};}}"
+            f"QMenu::separator{{height:1px;background:{BORDER};margin:4px 0;}}")
+        menu.addAction("Couper le morceau", self._open_trim)
+        menu.addSeparator()
+        menu.addAction("Normaliser le volume (-14 LUFS)", self._normalize_volume)
+        menu.addAction("Avant / Apres normalisation", self._preview_before_after)
+        menu.addSeparator()
+        menu.addAction("Convertir le format", self._convert_format)
+        btn = self._audio_tools_btn
+        pos = btn.mapToGlobal(btn.rect().bottomLeft())
+        menu.exec(pos)
+
+    def _show_save_menu(self):
+        from PyQt6.QtWidgets import QMenu
+        menu = QMenu(self)
+        menu.setStyleSheet(
+            f"QMenu{{background:{PANEL2};color:{TEXT};border:1px solid {BORDER};padding:4px;}}"
+            f"QMenu::item{{padding:8px 20px;font-size:11px;}}"
+            f"QMenu::item:selected{{background:{PANEL};color:{TEXT};}}"
+            f"QMenu::separator{{height:1px;background:{BORDER};margin:4px 0;}}")
+        menu.addAction("Sauvegarder + fichier suivant", self._save_and_next)
+        menu.addAction("Sauvegarder + problème suivant", self._save_and_next_issue)
+        menu.addSeparator()
+        menu.addAction("Tout sauvegarder", self._save_all)
+        menu.exec(self.cursor().pos())
+
+
+    def _deselect_all(self):
+        if self.current_index >= 0:
+            self.rows[self.current_index].set_selected(False)
+        self.current_index = -1
+        self._stop_play()
+        self.right.show_empty()
+
+
+    def _crop_current_cover(self):
+        if not self.current_cover:
+            self._flash("Aucune pochette à recadrer", err=True); return
+        d = CropDialog(self, self.current_cover)
+        d.cropped.connect(self._apply_cover)
         d.exec()
 
     def _flash(self,msg,err=False):
