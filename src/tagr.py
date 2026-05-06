@@ -1530,7 +1530,18 @@ class Tagr(QMainWindow):
         add_round.setCursor(Qt.CursorShape.PointingHandCursor)
         add_round.clicked.connect(self._browse_files)
 
+        dl_round = QPushButton("↓")
+        dl_round.setFixedSize(28, 28)
+        dl_round.setToolTip("Télécharger depuis URL (YouTube, SoundCloud…)")
+        dl_round.setStyleSheet(
+            f"QPushButton{{background:{PANEL};color:{TEXTM};border:1px solid {BORDER};"
+            f"border-radius:14px;font-size:14px;font-weight:bold;padding:0;}}"
+            f"QPushButton:hover{{background:{ACCENT};color:#000;border-color:{ACCENT};}}")
+        dl_round.setCursor(Qt.CursorShape.PointingHandCursor)
+        dl_round.clicked.connect(self._download_from_url)
+
         hl.addWidget(self.filter_field, 1)
+        hl.addWidget(dl_round)
         hl.addWidget(add_round)
         lv.addWidget(hdr)
 
@@ -3395,6 +3406,213 @@ class Tagr(QMainWindow):
         d = CropDialog(self, self.current_cover)
         d.cropped.connect(self._apply_cover)
         d.exec()
+
+
+    def _find_ytdlp(self):
+        for c in ["/opt/homebrew/bin/yt-dlp", "/usr/local/bin/yt-dlp", "/usr/bin/yt-dlp"]:
+            if os.path.isfile(c): return c
+        r = subprocess.run(["which", "yt-dlp"], capture_output=True)
+        return r.stdout.decode().strip() if r.returncode == 0 else None
+
+    def _download_from_url(self):
+        from PyQt6.QtWidgets import QDialog, QComboBox
+        ytdlp = self._find_ytdlp()
+        if not ytdlp:
+            self._flash("yt-dlp introuvable — brew install yt-dlp", err=True); return
+
+        d = QDialog(self)
+        d.setWindowTitle("Télécharger depuis URL")
+        d.setStyleSheet(f"background:{BG2};color:{TEXT};")
+        d.setMinimumWidth(480)
+        v = QVBoxLayout(d); v.setContentsMargins(20,20,20,20); v.setSpacing(12)
+
+        title_lbl = QLabel("Télécharger un fichier audio")
+        title_lbl.setStyleSheet(f"font-size:14px;font-weight:bold;color:{TEXT};")
+        v.addWidget(title_lbl)
+
+        src = QLabel("YouTube · SoundCloud · Bandcamp · et + de 1000 sites")
+        src.setStyleSheet(f"font-size:9px;color:{TEXTD};")
+        v.addWidget(src)
+
+        v.addWidget(QLabel("URL :", styleSheet=f"color:{TEXTM};font-size:10px;"))
+        url_input = QLineEdit()
+        url_input.setPlaceholderText("https://www.youtube.com/watch?v=...")
+        url_input.setStyleSheet(
+            f"background:{FIELDBG};color:{TEXT};border:1px solid {BORDER};"
+            f"border-radius:5px;padding:8px 10px;font-size:12px;")
+        v.addWidget(url_input)
+
+        fmt_row = QHBoxLayout(); fmt_row.setSpacing(10)
+        fmt_row.addWidget(QLabel("Format :", styleSheet=f"color:{TEXTM};font-size:10px;"))
+        fmt_combo = QComboBox()
+        fmt_combo.addItems(["Meilleure qualité (natif)", "MP3 320k"])
+        fmt_combo.setStyleSheet(
+            f"QComboBox{{background:{FIELDBG};color:{TEXT};border:1px solid {BORDER};"
+            f"border-radius:5px;padding:6px 8px;font-size:11px;}}"
+            f"QComboBox::drop-down{{border:none;width:16px;}}"
+            f"QComboBox QAbstractItemView{{background:{PANEL2};color:{TEXT};border:1px solid {BORDER};}}")
+        fmt_row.addWidget(fmt_combo); fmt_row.addStretch()
+        v.addLayout(fmt_row)
+
+        dest_row = QHBoxLayout(); dest_row.setSpacing(8)
+        dest_row.addWidget(QLabel("Dossier :", styleSheet=f"color:{TEXTM};font-size:10px;"))
+        dl_dest = [os.path.expanduser("~/Downloads")]
+        dest_lbl = QLabel(dl_dest[0])
+        dest_lbl.setStyleSheet(f"color:{TEXTD};font-size:9px;")
+        dest_btn = QPushButton("Changer")
+        dest_btn.setStyleSheet(
+            f"QPushButton{{background:{PANEL};color:{TEXTM};border:1px solid {BORDER};"
+            f"border-radius:4px;font-size:9px;padding:4px 8px;}}"
+            f"QPushButton:hover{{background:{PANEL2};color:{TEXT};}}")
+        dest_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        def choose_dest():
+            folder = QFileDialog.getExistingDirectory(d, "Choisir le dossier")
+            if folder:
+                dl_dest[0] = folder
+                dest_lbl.setText(folder)
+        dest_btn.clicked.connect(choose_dest)
+        dest_row.addWidget(dest_lbl, 1); dest_row.addWidget(dest_btn)
+        v.addLayout(dest_row)
+
+        sep = QFrame(); sep.setFrameShape(QFrame.Shape.HLine)
+        sep.setStyleSheet(f"color:{BORDER};"); v.addWidget(sep)
+
+        brow = QHBoxLayout(); brow.setSpacing(10)
+        dl_btn = QPushButton("Télécharger")
+        dl_btn.setStyleSheet(
+            f"QPushButton{{background:{ACCENT};color:#000;font-weight:bold;border:none;"
+            f"padding:10px 24px;font-size:12px;border-radius:5px;}}"
+            f"QPushButton:hover{{background:{ACCENT2};}}")
+        dl_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        brow.addStretch(); brow.addWidget(dl_btn)
+        v.addLayout(brow)
+
+        status_lbl = QLabel("")
+        status_lbl.setStyleSheet(f"color:{TEXTD};font-size:9px;")
+        v.addWidget(status_lbl)
+
+        # Worker avec signaux Qt propres
+        class DlWorker(QThread):
+            success = pyqtSignal(str)   # chemin du fichier
+            error   = pyqtSignal(str)   # message d'erreur
+            def __init__(self2, cmd, dest, before):
+                super().__init__()
+                self2.cmd = cmd; self2.dest = dest; self2.before = before
+            def run(self2):
+                try:
+                    r = subprocess.run(self2.cmd, capture_output=True, text=True, timeout=300)
+                    if r.returncode != 0:
+                        msg = r.stderr[-300:] if r.stderr else "Erreur inconnue"
+                        self2.error.emit(msg); return
+                    # Trouver le nouveau fichier
+                    after = set(
+                        os.path.join(self2.dest, f) for f in os.listdir(self2.dest)
+                        if f.endswith((".mp3",".flac",".m4a",".aac",".wav"))
+                    )
+                    new_files = sorted(after - self2.before, key=os.path.getmtime, reverse=True)
+                    if new_files:
+                        self2.success.emit(new_files[0])
+                    else:
+                        # Fallback : plus récent du dossier
+                        all_a = [os.path.join(self2.dest, f) for f in os.listdir(self2.dest)
+                                 if f.endswith((".mp3",".flac",".m4a",".aac",".wav"))]
+                        if all_a:
+                            self2.success.emit(max(all_a, key=os.path.getmtime))
+                        else:
+                            self2.error.emit("Fichier introuvable après téléchargement")
+                except subprocess.TimeoutExpired:
+                    self2.error.emit("Timeout — téléchargement trop long")
+                except Exception as ex:
+                    self2.error.emit(str(ex))
+
+        def do_download():
+            url = url_input.text().strip()
+            if not url:
+                status_lbl.setStyleSheet(f"color:{ERROR};font-size:9px;")
+                status_lbl.setText("Entre une URL valide"); return
+
+            fmt_idx = fmt_combo.currentIndex()
+            dest = dl_dest[0]
+            tpl = os.path.join(dest, "%(artist)s - %(title)s.%(ext)s")
+
+            if fmt_idx == 0:
+                # Meilleure qualité : flux source natif sans réencodage
+                # --embed-thumbnail non supporté sur WebM/Opus, on le retire
+                cmd = [ytdlp, "-f", "bestaudio",
+                       "-o", tpl, "--no-playlist", "--add-metadata", url]
+            else:
+                # MP3 320k
+                cmd = [ytdlp, "-x", "--audio-format", "mp3", "--audio-quality", "0",
+                       "-o", tpl, "--no-playlist", "--embed-thumbnail", "--add-metadata", url]
+
+            before_set = set(
+                os.path.join(dest, f) for f in os.listdir(dest)
+                if f.endswith((".mp3",".flac",".m4a",".aac",".wav"))
+            ) if os.path.isdir(dest) else set()
+
+            dl_btn.setEnabled(False)
+            dl_btn.setText("Téléchargement...")
+            cancel_btn.setText("Fermer")
+            status_lbl.setStyleSheet(f"color:{ACCENT};font-size:9px;")
+            status_lbl.setText("Téléchargement en cours...")
+
+            worker = DlWorker(cmd, dest, before_set)
+
+            def on_success(path):
+                status_lbl.setStyleSheet(f"color:{ACCENT};font-size:9px;")
+                status_lbl.setText(f"✓ {os.path.basename(path)}")
+                # Remettre le bouton Télécharger pour pouvoir relancer
+                dl_btn.setText("Télécharger")
+                dl_btn.setEnabled(True)
+                try: dl_btn.clicked.disconnect()
+                except: pass
+                dl_btn.clicked.connect(do_download)
+                # Ajouter à la liste principale
+                if path not in self.files:
+                    self.files.append(path)
+                    self._add_row(path)
+                    self._update_count()
+                subprocess.run(["mdimport", path], capture_output=True)
+                self._flash(f"Téléchargé : {os.path.basename(path)}")
+                # Sélectionner le fichier
+                QTimer.singleShot(200, lambda: self._on_row_select(self.rows[-1]))
+
+            def on_error(msg):
+                status_lbl.setStyleSheet(f"color:{ERROR};font-size:9px;")
+                if "ERROR" in msg: msg = msg[msg.rfind("ERROR"):][:150]
+                status_lbl.setText(f"Erreur : {msg}")
+                dl_btn.setEnabled(True)
+                dl_btn.setText("Réessayer")
+
+            worker.success.connect(on_success)
+            worker.error.connect(on_error)
+            self._workers.append(worker)
+            worker.start()
+
+        dl_btn.clicked.connect(do_download)
+        url_input.returnPressed.connect(lambda: do_download() if dl_btn.isEnabled() else None)
+
+        # Changer de format remet le bouton "Télécharger" pour pouvoir relancer
+        def on_fmt_change(_):
+            dl_btn.setText("Télécharger")
+            dl_btn.setEnabled(True)
+            try: dl_btn.clicked.disconnect()
+            except: pass
+            dl_btn.clicked.connect(do_download)
+            status_lbl.setText("")
+        fmt_combo.currentIndexChanged.connect(on_fmt_change)
+
+        # Echap ferme
+        from PyQt6.QtGui import QKeySequence
+        from PyQt6.QtWidgets import QShortcut as _QShortcut
+        esc = _QShortcut(QKeySequence("Escape"), d)
+        esc.activated.connect(d.reject)
+
+        url_input.setFocus()
+        d.exec()
+
+    def _on_dl_error(self, err, btn):
+        pass  # géré dans le worker
 
     def _flash(self,msg,err=False):
         self.status_lbl.setStyleSheet(f"color:{ERROR if err else ACCENT};font-size:10px;margin-top:6px;")
