@@ -18,12 +18,178 @@ from PyQt6.QtGui  import (QPixmap, QImage, QPainter, QColor, QPen, QBrush,
 
 # ── Config ────────────────────────────────────────────────────────────────────
 CONFIG_PATH = Path.home() / ".tagr_config.json"
+
+# ── Traductions / Translations ────────────────────────────────────────────────
+_TRANSLATIONS = {
+    "fr": {
+        "app_title": "Tagr — Éditeur de tags audio",
+        "Tagr": "Tagr",
+        "Fermer": "Fermer", "Annuler": "Annuler", "Changer": "Changer",
+        "Appliquer": "Appliquer", "Utiliser": "Utiliser", "Renommer": "Renommer",
+        "Convertir": "Convertir", "Réessayer": "Réessayer", "Normaliser": "Normaliser",
+        "Statistiques": "Statistiques", "Tout sélectionner": "Tout sélectionner",
+        "Retirer de la liste": "Retirer de la liste",
+        "Tout": "Tout", "Artiste": "Artiste", "Album": "Album", "Titre": "Titre",
+        "A → Z": "A → Z",
+        "hint_drop": "Glisse des fichiers audio\\nou un dossier entier ici\\n\\nMP3  FLAC  M4A  AAC  OGG",
+        "Ajouter des fichiers…": "Ajouter des fichiers…",
+        "Ajouter un dossier…": "Ajouter un dossier…",
+        "TITRE": "TITRE", "ARTISTE": "ARTISTE", "ALBUM": "ALBUM",
+        "Cliquer ou glisser une image": "Cliquer ou glisser une image",
+        "Ajouter\nune pochette": "Ajouter\nune pochette",
+        "Recadrer": "Recadrer", "Recadrer la pochette": "Recadrer la pochette",
+        "POCHETTE": "POCHETTE", "Recherche de pochette": "Recherche de pochette",
+        "Exporter la pochette": "Exporter la pochette",
+        "LECTURE": "LECTURE", "Ecouter": "Ecouter",
+        "OUTILS AUDIO": "OUTILS AUDIO", "Outils audio…": "Outils audio…",
+        "Sauvegarder": "Sauvegarder", "Tout sauvegarder": "Tout sauvegarder",
+        "Sauvegarder + fichier suivant": "Sauvegarder + fichier suivant",
+        "Sauvegarder + problème suivant": "Sauvegarder + problème suivant",
+        "Modifications non sauvegardées": "Modifications non sauvegardées",
+        "Couper le morceau": "Couper le morceau",
+        "Normaliser le volume (-14 LUFS)": "Normaliser le volume (-14 LUFS)",
+        "Avant / Apres normalisation": "Avant / Apres normalisation",
+        "Convertir le format": "Convertir le format",
+        "Télécharger depuis URL": "Télécharger depuis URL",
+        "Télécharger un fichier audio": "Télécharger un fichier audio",
+        "sc_bandcamp": "YouTube · SoundCloud · Bandcamp · et + de 1000 sites",
+        "URL :": "URL :", "Format :": "Format :", "Dossier :": "Dossier :",
+        "yt_not_found": "yt-dlp introuvable — brew install yt-dlp",
+        "Télécharger": "Télécharger", "Téléchargement...": "Téléchargement...",
+        "Téléchargement en cours...": "Téléchargement en cours...",
+        "Entre une URL valide": "Entre une URL valide",
+        "Annulation en cours...": "Annulation en cours...",
+        "Meilleure qualité (natif)": "Meilleure qualité (natif)", "MP3 320k": "MP3 320k",
+        "placeholder_url": "https://www.youtube.com/watch?v=...",
+        "Raccourcis clavier": "Raccourcis clavier",
+        "Prêt Spotify": "Prêt Spotify", "Export Spotify Ready": "Export Spotify Ready",
+        "Appliquer le découpage": "Appliquer le découpage",
+        "Découpage en cours…": "Découpage en cours…", "Stop": "Stop", "Zoom": "Zoom",
+        "Déposer ici": "Déposer ici",
+        "Normalisation rapide en cours...": "Normalisation rapide en cours...",
+        "Erreur normalisation": "Erreur normalisation",
+        "Lecture : Original": "Lecture : Original",
+        "Lecture : Normalise (-14 LUFS)": "Lecture : Normalise (-14 LUFS)",
+        "▶  Original": "▶  Original", "▶  Normalise": "▶  Normalise",
+        "Clique sur Original ou Normalise pour ecouter": "Clique sur Original ou Normalise pour ecouter",
+        "Aperçu du renommage": "Aperçu du renommage",
+        "Champs en lot": "Champs en lot", "Renommer par lot": "Renommer par lot",
+        "Fichier introuvable": "Fichier introuvable",
+        "Doublons possibles": "Doublons possibles",
+        "Aller au prochain problème": "Aller au prochain problème",
+        "⏹  Stop": "⏹  Stop", "▶  Écouter la sélection": "▶  Écouter la sélection",
+        "Résultats automatiques :": "Résultats automatiques :",
+        "Chargement des résultats...": "Chargement des résultats...",
+        "Chargement de l'image...": "Chargement de l'image...",
+        "Sélection trop courte": "Sélection trop courte",
+        "Statistiques de la bibliotheque": "Statistiques de la bibliotheque",
+        "select_file": "Sélectionne un fichier",
+        "Vue album": "Vue album", "Vue liste": "Vue liste",
+        "Erreur": "Erreur",
+        "Écraser le fichier": "Écraser le fichier",
+        "Créer un nouveau fichier": "Créer un nouveau fichier",
+        "Comment sauvegarder les modifications ?": "Comment sauvegarder les modifications ?",
+        "lang_toggle": "English", "lang_name": "Français",
+        "lang_restart": "Redémarrez Tagr pour appliquer la langue.",
+        "lang_title": "Langue / Language",
+    },
+    "en": {
+        "app_title": "Tagr — Audio Tag Editor",
+        "Tagr": "Tagr",
+        "Fermer": "Close", "Annuler": "Cancel", "Changer": "Change",
+        "Appliquer": "Apply", "Utiliser": "Use", "Renommer": "Rename",
+        "Convertir": "Convert", "Réessayer": "Retry", "Normaliser": "Normalize",
+        "Statistiques": "Statistics", "Tout sélectionner": "Select all",
+        "Retirer de la liste": "Remove from list",
+        "Tout": "All", "Artiste": "Artist", "Album": "Album", "Titre": "Title",
+        "A → Z": "A → Z",
+        "hint_drop": "Drop audio files\nor a folder here\n\nMP3  FLAC  M4A  AAC  OGG",
+        "Ajouter des fichiers…": "Add files…",
+        "Ajouter un dossier…": "Add folder…",
+        "TITRE": "TITLE", "ARTISTE": "ARTIST", "ALBUM": "ALBUM",
+        "Cliquer ou glisser une image": "Click or drag an image",
+        "Ajouter\nune pochette": "Add\ncover art",
+        "Recadrer": "Crop", "Recadrer la pochette": "Crop cover art",
+        "POCHETTE": "COVER ART", "Recherche de pochette": "Search cover art",
+        "Exporter la pochette": "Export cover art",
+        "LECTURE": "PLAYBACK", "Ecouter": "Listen",
+        "OUTILS AUDIO": "AUDIO TOOLS", "Outils audio…": "Audio tools…",
+        "Sauvegarder": "Save", "Tout sauvegarder": "Save all",
+        "Sauvegarder + fichier suivant": "Save + next file",
+        "Sauvegarder + problème suivant": "Save + next issue",
+        "Modifications non sauvegardées": "Unsaved changes",
+        "Couper le morceau": "Trim audio",
+        "Normaliser le volume (-14 LUFS)": "Normalize volume (-14 LUFS)",
+        "Avant / Apres normalisation": "Before / After normalization",
+        "Convertir le format": "Convert format",
+        "Télécharger depuis URL": "Download from URL",
+        "Télécharger un fichier audio": "Download an audio file",
+        "sc_bandcamp": "YouTube · SoundCloud · Bandcamp · and 1000+ sites",
+        "URL :": "URL:", "Format :": "Format:", "Dossier :": "Folder:",
+        "yt_not_found": "yt-dlp not found — brew install yt-dlp",
+        "Télécharger": "Download", "Téléchargement...": "Downloading...",
+        "Téléchargement en cours...": "Downloading...",
+        "Entre une URL valide": "Enter a valid URL",
+        "Annulation en cours...": "Cancelling...",
+        "Meilleure qualité (natif)": "Best quality (native)", "MP3 320k": "MP3 320k",
+        "placeholder_url": "https://www.youtube.com/watch?v=...",
+        "Raccourcis clavier": "Keyboard shortcuts",
+        "Prêt Spotify": "Spotify Ready", "Export Spotify Ready": "Export Spotify Ready",
+        "Appliquer le découpage": "Apply trim",
+        "Découpage en cours…": "Trimming…", "Stop": "Stop", "Zoom": "Zoom",
+        "Déposer ici": "Drop here",
+        "Normalisation rapide en cours...": "Normalizing...",
+        "Erreur normalisation": "Normalization error",
+        "Lecture : Original": "Play: Original",
+        "Lecture : Normalise (-14 LUFS)": "Play: Normalized (-14 LUFS)",
+        "▶  Original": "▶  Original", "▶  Normalise": "▶  Normalized",
+        "Clique sur Original ou Normalise pour ecouter": "Click Original or Normalized to listen",
+        "Aperçu du renommage": "Rename preview",
+        "Champs en lot": "Batch fields", "Renommer par lot": "Batch rename",
+        "Fichier introuvable": "File not found",
+        "Doublons possibles": "Possible duplicates",
+        "Aller au prochain problème": "Go to next issue",
+        "⏹  Stop": "⏹  Stop", "▶  Écouter la sélection": "▶  Play selection",
+        "Résultats automatiques :": "Automatic results:",
+        "Chargement des résultats...": "Loading results...",
+        "Chargement de l'image...": "Loading image...",
+        "Sélection trop courte": "Selection too short",
+        "Statistiques de la bibliotheque": "Library statistics",
+        "select_file": "Select a file",
+        "Vue album": "Album view", "Vue liste": "List view",
+        "Erreur": "Error",
+        "Écraser le fichier": "Overwrite file",
+        "Créer un nouveau fichier": "Create new file",
+        "Comment sauvegarder les modifications ?": "How to save changes?",
+        "lang_toggle": "Français", "lang_name": "English",
+        "lang_restart": "Restart Tagr to apply the language change.",
+        "lang_title": "Langue / Language",
+    }
+}
+
+_LANG = "fr"
+
+def T(key):
+    lang = _TRANSLATIONS.get(_LANG, _TRANSLATIONS["fr"])
+    return lang.get(key, _TRANSLATIONS["fr"].get(key, key))
+
+def set_lang(lang):
+    global _LANG
+    _LANG = lang
+
+
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 AUDIO_BACKUP_DIR = PROJECT_ROOT / "backups" / "audio"
 
 def load_config():
     try: return json.loads(CONFIG_PATH.read_text())
     except: return {}
+
+def _init_lang():
+    cfg = load_config()
+    if cfg.get("lang") in ("fr", "en"):
+        set_lang(cfg["lang"])
+_init_lang()
 
 def save_config(d):
     try: CONFIG_PATH.write_text(json.dumps(d))
@@ -1455,7 +1621,7 @@ class DlWorker(QThread):
 class Tagr(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Tagr"); self.resize(1060,720); self.setMinimumSize(820,560)
+        self.setWindowTitle(T("app_title")); self.resize(1060,720); self.setMinimumSize(820,560)
         # Titlebar macOS transparente — on dessine notre propre barre
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, False)
         try:
@@ -1575,11 +1741,21 @@ class Tagr(QMainWindow):
         bar=QFrame(); bar.setFixedHeight(52)
         bar.setStyleSheet(f"background:{BG};border-bottom:1px solid {BORDER};")
         bl=QHBoxLayout(bar); bl.setContentsMargins(16,0,16,0)
+        # Bouton langue à gauche
+        lang_btn = QPushButton(T("lang_toggle"))
+        lang_btn.setFixedHeight(26)
+        lang_btn.setStyleSheet(
+            f"QPushButton{{background:{PANEL};color:{TEXTM};border:1px solid {BORDER};"
+            f"border-radius:4px;font-size:10px;padding:0 10px;}}"
+            f"QPushButton:hover{{background:{PANEL2};color:{TEXT};}}")
+        lang_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        lang_btn.clicked.connect(self._toggle_lang)
+        bl.addWidget(lang_btn)
+        # Logo centré
         logo=QLabel("Tagr")
         logo.setStyleSheet(f"color:{TEXT};font-size:22px;font-weight:bold;letter-spacing:1px;")
         logo.setAlignment(Qt.AlignmentFlag.AlignCenter)
         bl.addStretch(1); bl.addWidget(logo); bl.addStretch(1)
-
         self.album_btn = None
         main.addWidget(bar)
 
@@ -1599,7 +1775,7 @@ class Tagr(QMainWindow):
 
         # Dropdown TRI : A→Z / Artiste / Album / Titre
         self.filter_field=QComboBox()
-        self.filter_field.addItems(["A → Z","Artiste","Album","Titre"])
+        self.filter_field.addItems([T("A → Z"),T("Artiste"),T("Album"),T("Titre")])
         self.filter_field.setStyleSheet(
             f"QComboBox{{background:{FIELDBG};color:{TEXTM};border:1px solid {BORDER};"
             f"border-radius:6px;padding:4px 8px;font-size:10px;}}"
@@ -1666,7 +1842,7 @@ class Tagr(QMainWindow):
                 self._deselect_all()
         self.list_container.mousePressEvent = _list_click
 
-        self.hint=QLabel("Glisse des fichiers audio\nou un dossier entier ici\n\nMP3  FLAC  M4A  AAC  OGG")
+        self.hint=QLabel(T("hint_drop"))
         self.hint.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.hint.setStyleSheet(f"color:{TEXTD};font-size:11px;padding:40px 16px;background:{BG2};")
         self.hint.mouseDoubleClickEvent = lambda e: self._browse_files()
@@ -1707,12 +1883,12 @@ class Tagr(QMainWindow):
         self.cover_lbl=CoverLabel()
         self.cover_lbl.clicked.connect(self._browse_cover)
         self.cover_lbl.image_dropped.connect(self._on_image_dropped)
-        sub=QLabel("Cliquer ou glisser une image")
+        sub=QLabel(T("Cliquer ou glisser une image"))
         sub.setStyleSheet(f"color:{TEXTD};font-size:9px;"); sub.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.cover_info=QLabel("")
         self.cover_info.setStyleSheet(f"color:{TEXTD};font-size:8px;"); self.cover_info.setAlignment(Qt.AlignmentFlag.AlignCenter)
         # Bouton recadrer
-        crop_btn=QPushButton("Recadrer")
+        crop_btn=QPushButton(T("Recadrer"))
         crop_btn.setStyleSheet(
             f"QPushButton{{background:{PANEL};color:{TEXTM};border:1px solid {BORDER};"
             f"border-radius:4px;font-size:9px;padding:4px 10px;}}"
@@ -1742,16 +1918,16 @@ class Tagr(QMainWindow):
                                 f"QPushButton:hover{{background:{PANEL2};color:{TEXT};border:1px solid {BORDER};}}")
             b.setCursor(Qt.CursorShape.PointingHandCursor); b.clicked.connect(fn); bc.addWidget(b); return b
 
-        section("POCHETTE")
-        abtn("Recherche de pochette", self._search_cover_smart)
-        abtn("Exporter la pochette", self._export_cover)
+        section(T("POCHETTE"))
+        abtn(T("Recherche de pochette"), self._search_cover_smart)
+        abtn(T("Exporter la pochette"), self._export_cover)
 
-        section("LECTURE")
-        self.play_btn=abtn("Ecouter", self._toggle_play)
+        section(T("LECTURE"))
+        self.play_btn=abtn(T("Ecouter"), self._toggle_play)
 
-        section("OUTILS AUDIO")
+        section(T("OUTILS AUDIO"))
         # Menu déroulant pour les outils audio
-        self._audio_tools_btn=QPushButton("Outils audio…")
+        self._audio_tools_btn=QPushButton(T("Outils audio…"))
         self._audio_tools_btn.setStyleSheet(
             f"QPushButton{{background:{PANEL};color:{TEXTM};border:1px solid transparent;"
             f"padding:9px 14px;font-size:11px;text-align:left;border-radius:4px;}}"
@@ -1810,7 +1986,7 @@ class Tagr(QMainWindow):
 
         # Bouton sauvegarder pleine largeur
         bot_wrap=QVBoxLayout(); bot_wrap.setContentsMargins(0,20,0,0)
-        save=QPushButton("Sauvegarder")
+        save=QPushButton(T("Sauvegarder"))
         save.setStyleSheet(f"QPushButton{{background:{ACCENT};color:#000;font-weight:bold;font-size:12px;"
                            f"border:none;padding:12px;border-radius:5px;}}"
                            f"QPushButton:hover{{background:{ACCENT2};}}")
@@ -2188,11 +2364,11 @@ class Tagr(QMainWindow):
         from PyQt6.QtWidgets import QMessageBox
         msg = QMessageBox(self)
         msg.setWindowTitle("Sauvegarder")
-        msg.setText(f"Comment sauvegarder les modifications ?")
+        msg.setText(T("Comment sauvegarder les modifications ?"))
         msg.setInformativeText(os.path.basename(path))
         msg.setStyleSheet(f"background:{BG2};color:{TEXT};")
-        overwrite_btn = msg.addButton("Écraser le fichier", QMessageBox.ButtonRole.AcceptRole)
-        new_btn       = msg.addButton("Créer un nouveau fichier", QMessageBox.ButtonRole.ActionRole)
+        overwrite_btn = msg.addButton(T("Écraser le fichier"), QMessageBox.ButtonRole.AcceptRole)
+        new_btn       = msg.addButton(T("Créer un nouveau fichier"), QMessageBox.ButtonRole.ActionRole)
         cancel_btn    = msg.addButton("Annuler", QMessageBox.ButtonRole.RejectRole)
         msg.exec()
         clicked = msg.clickedButton()
@@ -3511,12 +3687,12 @@ class Tagr(QMainWindow):
             f"QMenu::item{{padding:8px 20px;font-size:11px;}}"
             f"QMenu::item:selected{{background:{PANEL};color:{TEXT};}}"
             f"QMenu::separator{{height:1px;background:{BORDER};margin:4px 0;}}")
-        menu.addAction("Couper le morceau", self._open_trim)
+        menu.addAction(T("Couper le morceau"), self._open_trim)
         menu.addSeparator()
-        menu.addAction("Normaliser le volume (-14 LUFS)", self._normalize_volume)
-        menu.addAction("Avant / Apres normalisation", self._preview_before_after)
+        menu.addAction(T("Normaliser le volume (-14 LUFS)"), self._normalize_volume)
+        menu.addAction(T("Avant / Apres normalisation"), self._preview_before_after)
         menu.addSeparator()
-        menu.addAction("Convertir le format", self._convert_format)
+        menu.addAction(T("Convertir le format"), self._convert_format)
         btn = self._audio_tools_btn
         pos = btn.mapToGlobal(btn.rect().bottomLeft())
         menu.exec(pos)
@@ -3535,6 +3711,23 @@ class Tagr(QMainWindow):
         menu.addAction("Tout sauvegarder", self._save_all)
         menu.exec(self.cursor().pos())
 
+
+
+    def _toggle_lang(self):
+        from PyQt6.QtWidgets import QMessageBox
+        new_lang = "en" if _LANG == "fr" else "fr"
+        cfg = load_config()
+        cfg["lang"] = new_lang
+        save_config(cfg)
+        msg = QMessageBox(self)
+        msg.setWindowTitle(T("lang_title"))
+        msg.setText(T("lang_restart"))
+        msg.setStyleSheet(f"background:{BG2};color:{TEXT};")
+        msg.exec()
+        import sys
+        python = sys.executable
+        import os
+        os.execv(python, [python] + sys.argv)
 
     def _deselect_all(self):
         self._clear_row_selection()
@@ -3574,16 +3767,16 @@ class Tagr(QMainWindow):
 
         from PyQt6.QtWidgets import QDialog, QComboBox
         d = QDialog(self)
-        d.setWindowTitle("Télécharger depuis URL")
+        d.setWindowTitle(T("Télécharger depuis URL"))
         d.setStyleSheet(f"background:{BG2};color:{TEXT};")
         d.setMinimumWidth(480)
         v = QVBoxLayout(d); v.setContentsMargins(20,20,20,20); v.setSpacing(12)
 
-        title_lbl = QLabel("Télécharger un fichier audio")
+        title_lbl = QLabel(T("Télécharger un fichier audio"))
         title_lbl.setStyleSheet(f"font-size:14px;font-weight:bold;color:{TEXT};")
         v.addWidget(title_lbl)
 
-        src_lbl = QLabel("YouTube · SoundCloud · Bandcamp · et + de 1000 sites")
+        src_lbl = QLabel(T("sc_bandcamp"))
         src_lbl.setStyleSheet(f"font-size:9px;color:{TEXTD};")
         v.addWidget(src_lbl)
 
@@ -3630,7 +3823,7 @@ class Tagr(QMainWindow):
         sep = QFrame(); sep.setFrameShape(QFrame.Shape.HLine)
         sep.setStyleSheet(f"color:{BORDER};"); v.addWidget(sep)
 
-        dl_btn = QPushButton("Télécharger")
+        dl_btn = QPushButton(T("Télécharger"))
         dl_btn.setStyleSheet(
             f"QPushButton{{background:{ACCENT};color:#000;font-weight:bold;border:none;"
             f"padding:11px;font-size:12px;border-radius:5px;}}"
