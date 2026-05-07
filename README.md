@@ -1,51 +1,53 @@
 # Tagr
 
-Tagr est une application macOS personnelle pour modifier les metadonnees de fichiers audio.
+**Tagr** is a clean, fast audio tag editor for macOS — built for people who care about their music library.
 
-Elle est actuellement developpee en Python avec PyQt6. Le code principal se trouve dans `src/tagr.py`.
+Edit metadata, find cover art, and download audio from the web, all in one place.
 
-## Lancer l'application
+![macOS](https://img.shields.io/badge/macOS-12%2B-black) ![Python](https://img.shields.io/badge/Python-3.12-blue) ![License](https://img.shields.io/badge/license-MIT-green)
 
-Le plus simple :
+---
 
-```bash
-./scripts/run_tagr.sh
-```
+## Features
 
-Le double-clic sur `Tagr.app` utilise aussi cette copie du projet.
+- **Edit tags** — title, artist, album for MP3, FLAC, M4A, AAC, OGG
+- **Cover art** — search, crop to square, export
+- **Download** — paste a YouTube, SoundCloud or Bandcamp URL and get the audio file directly in Tagr
+- **Audio tools** — trim, normalize to -14 LUFS, convert format
+- **Multiple selection** — select and manage several files at once
 
-## Organisation
+---
 
-- `src/tagr.py` : application principale.
-- `scripts/run_tagr.sh` : lance Tagr depuis ce dossier projet.
-- `scripts/setup_env.sh` : cree un environnement Python local et installe les dependances.
-- `backups/` : copies de securite de la version initiale.
-- `docs/DEV_NOTES.md` : contexte technique pour reprendre le projet plus tard.
+## Installation
 
-## Dependances
+1. Download `Tagr-v1.0.zip` from the [latest release](https://github.com/lejefe92/Tagr/releases/latest)
+2. Unzip and drag `Tagr.app` to your Applications folder
+3. First launch: **right-click → Open** (required to bypass macOS Gatekeeper on unsigned apps)
 
-Dependances Python principales :
+### Requirements
 
-- PyQt6
-- Mutagen
-- Pillow
+- macOS 12 or later
+- [ffmpeg](https://ffmpeg.org) — install via Homebrew: `brew install ffmpeg`
+- [yt-dlp](https://github.com/yt-dlp/yt-dlp) — for URL downloads: `brew install yt-dlp`
 
-Dependance systeme utilisee par certaines fonctions audio :
+---
 
-- `ffmpeg`
+## Usage
 
-Sur macOS, si `ffmpeg` manque :
+**Adding files** — drag and drop audio files or folders, or click `+`
 
-```bash
-brew install ffmpeg
-```
+**Downloading from URL** — click the `↓` button in the top left, paste a link and hit Enter
 
-## Configuration utilisateur
+**Saving** — click Save to overwrite the existing file or create a new one named `Artist - Title`
 
-La configuration locale est stockee dans :
+---
 
-```text
-~/.tagr_config.json
-```
+## Feedback & Issues
 
-Ce fichier contient notamment les fichiers recents, le dernier dossier ouvert et le theme.
+Found a bug or have a suggestion? Open an [issue](https://github.com/lejefe92/Tagr/issues) on GitHub.
+
+---
+
+## License
+
+MIT © lejefe92
