@@ -1347,6 +1347,44 @@ class FfmpegWorker(QThread):
             self.finished.emit(False, str(e))
 
 
+class DlWorker(QThread):
+    """Worker de téléchargement audio via yt-dlp."""
+    success = pyqtSignal(str)   # chemin du fichier téléchargé
+    error   = pyqtSignal(str)   # message d'erreur
+
+    def __init__(self, cmd, dest, before):
+        super().__init__()
+        self.cmd = cmd
+        self.dest = dest
+        self.before = before
+
+    def run(self):
+        try:
+            r = subprocess.run(self.cmd, capture_output=True, text=True, timeout=300)
+            if r.returncode != 0:
+                msg = r.stderr[-300:] if r.stderr else "Erreur inconnue"
+                self.error.emit(msg)
+                return
+            after = set(
+                os.path.join(self.dest, f) for f in os.listdir(self.dest)
+                if f.endswith((".mp3", ".flac", ".m4a", ".aac", ".wav"))
+            )
+            new_files = sorted(after - self.before, key=os.path.getmtime, reverse=True)
+            if new_files:
+                self.success.emit(new_files[0])
+            else:
+                all_a = [os.path.join(self.dest, f) for f in os.listdir(self.dest)
+                         if f.endswith((".mp3", ".flac", ".m4a", ".aac", ".wav"))]
+                if all_a:
+                    self.success.emit(max(all_a, key=os.path.getmtime))
+                else:
+                    self.error.emit("Fichier introuvable après téléchargement")
+        except subprocess.TimeoutExpired:
+            self.error.emit("Timeout — téléchargement trop long")
+        except Exception as ex:
+            self.error.emit(str(ex))
+
+
 class Tagr(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -3415,11 +3453,12 @@ class Tagr(QMainWindow):
         return r.stdout.decode().strip() if r.returncode == 0 else None
 
     def _download_from_url(self):
-        from PyQt6.QtWidgets import QDialog, QComboBox
         ytdlp = self._find_ytdlp()
         if not ytdlp:
-            self._flash("yt-dlp introuvable — brew install yt-dlp", err=True); return
+            self._flash("yt-dlp introuvable — brew install yt-dlp", err=True)
+            return
 
+        from PyQt6.QtWidgets import QDialog, QComboBox
         d = QDialog(self)
         d.setWindowTitle("Télécharger depuis URL")
         d.setStyleSheet(f"background:{BG2};color:{TEXT};")
@@ -3430,9 +3469,9 @@ class Tagr(QMainWindow):
         title_lbl.setStyleSheet(f"font-size:14px;font-weight:bold;color:{TEXT};")
         v.addWidget(title_lbl)
 
-        src = QLabel("YouTube · SoundCloud · Bandcamp · et + de 1000 sites")
-        src.setStyleSheet(f"font-size:9px;color:{TEXTD};")
-        v.addWidget(src)
+        src_lbl = QLabel("YouTube · SoundCloud · Bandcamp · et + de 1000 sites")
+        src_lbl.setStyleSheet(f"font-size:9px;color:{TEXTD};")
+        v.addWidget(src_lbl)
 
         v.addWidget(QLabel("URL :", styleSheet=f"color:{TEXTM};font-size:10px;"))
         url_input = QLineEdit()
@@ -3477,13 +3516,13 @@ class Tagr(QMainWindow):
         sep = QFrame(); sep.setFrameShape(QFrame.Shape.HLine)
         sep.setStyleSheet(f"color:{BORDER};"); v.addWidget(sep)
 
-        brow = QHBoxLayout(); brow.setSpacing(10)
         dl_btn = QPushButton("Télécharger")
         dl_btn.setStyleSheet(
             f"QPushButton{{background:{ACCENT};color:#000;font-weight:bold;border:none;"
             f"padding:10px 24px;font-size:12px;border-radius:5px;}}"
             f"QPushButton:hover{{background:{ACCENT2};}}")
         dl_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        brow = QHBoxLayout()
         brow.addStretch(); brow.addWidget(dl_btn)
         v.addLayout(brow)
 
@@ -3491,98 +3530,60 @@ class Tagr(QMainWindow):
         status_lbl.setStyleSheet(f"color:{TEXTD};font-size:9px;")
         v.addWidget(status_lbl)
 
-        # Worker avec signaux Qt propres
-        class DlWorker(QThread):
-            success = pyqtSignal(str)   # chemin du fichier
-            error   = pyqtSignal(str)   # message d'erreur
-            def __init__(self2, cmd, dest, before):
-                super().__init__()
-                self2.cmd = cmd; self2.dest = dest; self2.before = before
-            def run(self2):
-                try:
-                    r = subprocess.run(self2.cmd, capture_output=True, text=True, timeout=300)
-                    if r.returncode != 0:
-                        msg = r.stderr[-300:] if r.stderr else "Erreur inconnue"
-                        self2.error.emit(msg); return
-                    # Trouver le nouveau fichier
-                    after = set(
-                        os.path.join(self2.dest, f) for f in os.listdir(self2.dest)
-                        if f.endswith((".mp3",".flac",".m4a",".aac",".wav"))
-                    )
-                    new_files = sorted(after - self2.before, key=os.path.getmtime, reverse=True)
-                    if new_files:
-                        self2.success.emit(new_files[0])
-                    else:
-                        # Fallback : plus récent du dossier
-                        all_a = [os.path.join(self2.dest, f) for f in os.listdir(self2.dest)
-                                 if f.endswith((".mp3",".flac",".m4a",".aac",".wav"))]
-                        if all_a:
-                            self2.success.emit(max(all_a, key=os.path.getmtime))
-                        else:
-                            self2.error.emit("Fichier introuvable après téléchargement")
-                except subprocess.TimeoutExpired:
-                    self2.error.emit("Timeout — téléchargement trop long")
-                except Exception as ex:
-                    self2.error.emit(str(ex))
+        # Etat du worker en cours
+        self._dl_worker_ref = [None]
 
         def do_download():
             url = url_input.text().strip()
             if not url:
                 status_lbl.setStyleSheet(f"color:{ERROR};font-size:9px;")
-                status_lbl.setText("Entre une URL valide"); return
+                status_lbl.setText("Entre une URL valide")
+                return
 
-            fmt_idx = fmt_combo.currentIndex()
             dest = dl_dest[0]
+            fmt_idx = fmt_combo.currentIndex()
             tpl = os.path.join(dest, "%(artist)s - %(title)s.%(ext)s")
 
             if fmt_idx == 0:
-                # Meilleure qualité : flux source natif sans réencodage
-                # --embed-thumbnail non supporté sur WebM/Opus, on le retire
                 cmd = [ytdlp, "-f", "bestaudio",
                        "-o", tpl, "--no-playlist", "--add-metadata", url]
             else:
-                # MP3 320k
                 cmd = [ytdlp, "-x", "--audio-format", "mp3", "--audio-quality", "0",
                        "-o", tpl, "--no-playlist", "--embed-thumbnail", "--add-metadata", url]
 
             before_set = set(
                 os.path.join(dest, f) for f in os.listdir(dest)
-                if f.endswith((".mp3",".flac",".m4a",".aac",".wav"))
+                if f.endswith((".mp3", ".flac", ".m4a", ".aac", ".wav"))
             ) if os.path.isdir(dest) else set()
 
             dl_btn.setEnabled(False)
             dl_btn.setText("Téléchargement...")
-            cancel_btn.setText("Fermer")
             status_lbl.setStyleSheet(f"color:{ACCENT};font-size:9px;")
             status_lbl.setText("Téléchargement en cours...")
 
             worker = DlWorker(cmd, dest, before_set)
+            self._dl_worker_ref[0] = worker
 
             def on_success(path):
                 status_lbl.setStyleSheet(f"color:{ACCENT};font-size:9px;")
                 status_lbl.setText(f"✓ {os.path.basename(path)}")
-                # Remettre le bouton Télécharger pour pouvoir relancer
                 dl_btn.setText("Télécharger")
                 dl_btn.setEnabled(True)
-                try: dl_btn.clicked.disconnect()
-                except: pass
-                dl_btn.clicked.connect(do_download)
-                # Ajouter à la liste principale
                 if path not in self.files:
                     self.files.append(path)
                     self._add_row(path)
                     self._update_count()
                 subprocess.run(["mdimport", path], capture_output=True)
                 self._flash(f"Téléchargé : {os.path.basename(path)}")
-                # Sélectionner le fichier
                 QTimer.singleShot(200, lambda: self._on_row_select(self.rows[-1]))
 
             def on_error(msg):
+                if "ERROR" in msg:
+                    msg = msg[msg.rfind("ERROR"):][:150]
                 status_lbl.setStyleSheet(f"color:{ERROR};font-size:9px;")
-                if "ERROR" in msg: msg = msg[msg.rfind("ERROR"):][:150]
                 status_lbl.setText(f"Erreur : {msg}")
-                dl_btn.setEnabled(True)
                 dl_btn.setText("Réessayer")
+                dl_btn.setEnabled(True)
 
             worker.success.connect(on_success)
             worker.error.connect(on_error)
@@ -3590,23 +3591,23 @@ class Tagr(QMainWindow):
             worker.start()
 
         dl_btn.clicked.connect(do_download)
-        url_input.returnPressed.connect(lambda: do_download() if dl_btn.isEnabled() else None)
+        url_input.returnPressed.connect(
+            lambda: do_download() if dl_btn.isEnabled() else None)
 
-        # Changer de format remet le bouton "Télécharger" pour pouvoir relancer
+        # Echap ferme via keyPressEvent (pas QShortcut)
+        orig_key = d.keyPressEvent
+        def dlg_key(event):
+            if event.key() == Qt.Key.Key_Escape:
+                d.reject()
+            else:
+                orig_key(event)
+        d.keyPressEvent = dlg_key
+
+        # Changer format remet le bouton
         def on_fmt_change(_):
-            dl_btn.setText("Télécharger")
-            dl_btn.setEnabled(True)
-            try: dl_btn.clicked.disconnect()
-            except: pass
-            dl_btn.clicked.connect(do_download)
-            status_lbl.setText("")
+            if dl_btn.isEnabled():
+                status_lbl.setText("")
         fmt_combo.currentIndexChanged.connect(on_fmt_change)
-
-        # Echap ferme
-        from PyQt6.QtGui import QKeySequence
-        from PyQt6.QtWidgets import QShortcut as _QShortcut
-        esc = _QShortcut(QKeySequence("Escape"), d)
-        esc.activated.connect(d.reject)
 
         url_input.setFocus()
         d.exec()
