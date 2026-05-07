@@ -1741,21 +1741,26 @@ class Tagr(QMainWindow):
         bar=QFrame(); bar.setFixedHeight(52)
         bar.setStyleSheet(f"background:{BG};border-bottom:1px solid {BORDER};")
         bl=QHBoxLayout(bar); bl.setContentsMargins(16,0,16,0)
-        # Bouton langue à gauche
+        # Layout barre : [lang_btn] [stretch] [logo] [stretch]
+        # stretch gauche = stretch droit pour centrer le logo
         lang_btn = QPushButton(T("lang_toggle"))
-        lang_btn.setFixedHeight(26)
+        lang_btn.setFixedSize(60, 26)
         lang_btn.setStyleSheet(
             f"QPushButton{{background:{PANEL};color:{TEXTM};border:1px solid {BORDER};"
-            f"border-radius:4px;font-size:10px;padding:0 10px;}}"
+            f"border-radius:4px;font-size:10px;padding:0 8px;}}"
             f"QPushButton:hover{{background:{PANEL2};color:{TEXT};}}")
         lang_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         lang_btn.clicked.connect(self._toggle_lang)
-        bl.addWidget(lang_btn)
-        # Logo centré
         logo=QLabel("Tagr")
         logo.setStyleSheet(f"color:{TEXT};font-size:22px;font-weight:bold;letter-spacing:1px;")
         logo.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        bl.addStretch(1); bl.addWidget(logo); bl.addStretch(1)
+        bl.addWidget(lang_btn)
+        bl.addStretch(1)
+        bl.addWidget(logo)
+        bl.addStretch(1)
+        # Spacer droit de même largeur que lang_btn pour garder le logo centré
+        spacer = QWidget(); spacer.setFixedSize(60, 26)
+        bl.addWidget(spacer)
         self.album_btn = None
         main.addWidget(bar)
 
