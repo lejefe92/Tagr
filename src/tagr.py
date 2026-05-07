@@ -429,6 +429,7 @@ def multi_search(query, n=9):
 
 class CropDialog(QDialog):
     cropped=pyqtSignal(object)
+    OUTPUT_SIZE = 640
 
     def __init__(self, parent, img):
         super().__init__(parent)
@@ -444,7 +445,7 @@ class CropDialog(QDialog):
         tk=QLabel("Recadrer la pochette"); tk.setStyleSheet(f"font-size:14px;font-weight:bold;")
         v.addWidget(tk)
 
-        sub=QLabel("Scroll pour zoomer · Glisser pour déplacer")
+        sub=QLabel("Scroll pour zoomer · Glisser pour déplacer · Sortie carrée 640x640")
         sub.setStyleSheet(f"font-size:9px;color:{TEXTD};"); v.addWidget(sub)
 
         self.canvas=QLabel(); self.canvas.setFixedSize(self._preview_size,self._preview_size)
@@ -488,10 +489,10 @@ class CropDialog(QDialog):
         # Crop central
         self._current_canvas=canvas
         px2=pil_to_qpixmap_exact(canvas,S,S)
-        # Overlay : cercle de crop
+        # Overlay : la pochette Spotify est carree, on garde un cadre 1:1.
         painter=QPainter(px2)
         painter.setPen(QPen(QColor(255,255,255,80),1))
-        painter.drawEllipse(0,0,S-1,S-1)
+        painter.drawRect(0,0,S-1,S-1)
         painter.end()
         self.canvas.setPixmap(px2)
 
@@ -520,6 +521,7 @@ class CropDialog(QDialog):
     def _apply(self):
         S=self._preview_size
         result=self._current_canvas.crop((0,0,S,S))
+        result=result.resize((self.OUTPUT_SIZE,self.OUTPUT_SIZE),PILImage.LANCZOS)
         self.cropped.emit(result); self.accept()
 
 # ── Workers ───────────────────────────────────────────────────────────────────
@@ -596,7 +598,7 @@ class CoverLabel(QLabel):
 # ── FileRow ───────────────────────────────────────────────────────────────────
 
 class FileRow(QFrame):
-    selected_signal=pyqtSignal(object)
+    selected_signal=pyqtSignal(object, object)
     delete_signal=pyqtSignal(object)
 
     def __init__(self,path):
@@ -638,7 +640,7 @@ class FileRow(QFrame):
 
     def set_dirty(self,val):
         self._dirty=val
-        self.dot.setStyleSheet(f"color:{WARN if val else 'transparent'};font-size:7px;background:transparent;")
+        self.dot.setStyleSheet("color:transparent;font-size:7px;background:transparent;")
 
     def set_selected(self,val):
         self._selected=val; self._style(val)
@@ -656,7 +658,7 @@ class FileRow(QFrame):
         self._hover=False; self._style(self._selected); super().leaveEvent(e)
 
     def mousePressEvent(self,e):
-        if e.button()==Qt.MouseButton.LeftButton: self.selected_signal.emit(self)
+        if e.button()==Qt.MouseButton.LeftButton: self.selected_signal.emit(self, e)
         elif e.button()==Qt.MouseButton.RightButton: self._ctx(e)
 
     def _ctx(self,e):
@@ -1352,35 +1354,100 @@ class DlWorker(QThread):
     success = pyqtSignal(str)   # chemin du fichier téléchargé
     error   = pyqtSignal(str)   # message d'erreur
 
-    def __init__(self, cmd, dest, before):
+    AUDIO_EXTS = (".mp3", ".flac", ".m4a", ".aac", ".wav", ".opus", ".webm", ".ogg", ".oga")
+
+    def __init__(self, cmd, dest, before, url=None, ytdlp_opts=None):
         super().__init__()
         self.cmd = cmd
         self.dest = dest
         self.before = before
+        self.url = url
+        self.ytdlp_opts = ytdlp_opts
+        self._proc = None
+        self._cancelled = False
+
+    def cancel(self):
+        self._cancelled = True
+        if self._proc and self._proc.poll() is None:
+            try:
+                self._proc.terminate()
+            except Exception:
+                pass
+
+    def _audio_files(self):
+        return set(
+            os.path.join(self.dest, f) for f in os.listdir(self.dest)
+            if f.lower().endswith(self.AUDIO_EXTS)
+        )
+
+    def _emit_downloaded_file(self):
+        after = self._audio_files()
+        new_files = sorted(after - self.before, key=os.path.getmtime, reverse=True)
+        if new_files:
+            self.success.emit(new_files[0])
+            return
+        all_a = list(after)
+        if all_a:
+            self.success.emit(max(all_a, key=os.path.getmtime))
+        else:
+            self.error.emit("Fichier introuvable après téléchargement")
+
+    def _run_python_ytdlp(self):
+        class DownloadCancelled(Exception):
+            pass
+
+        def hook(_info):
+            if self._cancelled:
+                raise DownloadCancelled()
+
+        try:
+            import yt_dlp
+        except Exception:
+            self.error.emit("yt-dlp introuvable")
+            return
+
+        opts = dict(self.ytdlp_opts or {})
+        hooks = list(opts.get("progress_hooks", []))
+        hooks.append(hook)
+        opts["progress_hooks"] = hooks
+
+        try:
+            with yt_dlp.YoutubeDL(opts) as ydl:
+                ydl.extract_info(self.url, download=True)
+            if self._cancelled:
+                self.error.emit("Téléchargement annulé")
+            else:
+                self._emit_downloaded_file()
+        except DownloadCancelled:
+            self.error.emit("Téléchargement annulé")
+        except Exception as ex:
+            self.error.emit(str(ex))
 
     def run(self):
+        if self.ytdlp_opts is not None:
+            self._run_python_ytdlp()
+            return
         try:
-            r = subprocess.run(self.cmd, capture_output=True, text=True, timeout=300)
-            if r.returncode != 0:
-                msg = r.stderr[-300:] if r.stderr else "Erreur inconnue"
+            self._proc = subprocess.Popen(
+                self.cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            try:
+                out, err = self._proc.communicate(timeout=300)
+            except subprocess.TimeoutExpired:
+                self.cancel()
+                try:
+                    self._proc.communicate(timeout=5)
+                except Exception:
+                    pass
+                self.error.emit("Timeout — téléchargement trop long")
+                return
+            if self._cancelled:
+                self.error.emit("Téléchargement annulé")
+                return
+            if self._proc.returncode != 0:
+                msg = err[-300:] if err else "Erreur inconnue"
                 self.error.emit(msg)
                 return
-            after = set(
-                os.path.join(self.dest, f) for f in os.listdir(self.dest)
-                if f.endswith((".mp3", ".flac", ".m4a", ".aac", ".wav"))
-            )
-            new_files = sorted(after - self.before, key=os.path.getmtime, reverse=True)
-            if new_files:
-                self.success.emit(new_files[0])
-            else:
-                all_a = [os.path.join(self.dest, f) for f in os.listdir(self.dest)
-                         if f.endswith((".mp3", ".flac", ".m4a", ".aac", ".wav"))]
-                if all_a:
-                    self.success.emit(max(all_a, key=os.path.getmtime))
-                else:
-                    self.error.emit("Fichier introuvable après téléchargement")
-        except subprocess.TimeoutExpired:
-            self.error.emit("Timeout — téléchargement trop long")
+            self._emit_downloaded_file()
         except Exception as ex:
             self.error.emit(str(ex))
 
@@ -1401,6 +1468,7 @@ class Tagr(QMainWindow):
         self.setStyleSheet(f"QMainWindow{{background:{BG};}}")
         self.setAcceptDrops(True)
         self.files=[]; self.rows=[]; self.current_index=-1
+        self.selected_rows=set(); self._selection_anchor=None
         self.current_cover=None; self.tags_cache={}
         self._play_proc=None; self._workers=[]
         self._sort_key="name"; self._filter_text=""
@@ -1511,14 +1579,7 @@ class Tagr(QMainWindow):
         logo.setStyleSheet(f"color:{TEXT};font-size:22px;font-weight:bold;letter-spacing:1px;")
         logo.setAlignment(Qt.AlignmentFlag.AlignCenter)
         bl.addStretch(1); bl.addWidget(logo); bl.addStretch(1)
-        info_btn=QPushButton("i")
-        info_btn.setFixedSize(26,26)
-        info_btn.setStyleSheet(f"QPushButton{{background:{PANEL};color:{TEXTM};border:1px solid {BORDER};"
-                               f"border-radius:13px;font-size:11px;font-weight:bold;}}"
-                               f"QPushButton:hover{{background:{PANEL2};color:{TEXT};}}")
-        info_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        info_btn.clicked.connect(self._show_shortcuts)
-        bl.addWidget(info_btn)
+
         self.album_btn = None
         main.addWidget(bar)
 
@@ -1791,7 +1852,6 @@ class Tagr(QMainWindow):
         self.tags_cache[path]=tags
         for row in self.rows:
             if row.path==path: row.set_display(tags["title"],tags["artist"],tags["cover"]); break
-        self._detect_duplicates()
 
     def _update_count(self):
         n=len(self.files)
@@ -1837,10 +1897,23 @@ class Tagr(QMainWindow):
 
     # ── Sélection ─────────────────────────────────────────────────────────────
 
-    def _on_row_select(self,row):
+    def _clear_row_selection(self):
+        for r in list(self.selected_rows):
+            try:
+                r.set_selected(False)
+            except Exception:
+                pass
+        self.selected_rows.clear()
+
+    def _set_selected_rows(self, rows):
+        rows = {r for r in rows if r in self.rows}
+        for r in self.rows:
+            r.set_selected(r in rows)
+        self.selected_rows = rows
+
+    def _focus_row_editor(self, row):
         self._stop_play()
-        if self.current_index>=0: self.rows[self.current_index].set_selected(False)
-        idx=self.rows.index(row); self.current_index=idx; row.set_selected(True)
+        idx=self.rows.index(row); self.current_index=idx
         # Auto-scroll vers le fichier sélectionné
         # Scroll vertical uniquement — ensureWidgetVisible peut décaler horizontalement
         def _scroll_to_row():
@@ -1876,6 +1949,34 @@ class Tagr(QMainWindow):
         self._update_quality(path)
         self._update_spotify_status()
 
+    def _on_row_select(self,row,event=None):
+        modifiers = event.modifiers() if event is not None else Qt.KeyboardModifier.NoModifier
+        idx = self.rows.index(row)
+        focus_row = row
+        multi_key = bool(modifiers & (Qt.KeyboardModifier.MetaModifier | Qt.KeyboardModifier.ControlModifier))
+        range_key = bool(modifiers & Qt.KeyboardModifier.ShiftModifier)
+
+        if range_key and self.rows:
+            anchor = self._selection_anchor
+            if anchor not in self.rows:
+                anchor = self.rows[self.current_index] if self.current_index >= 0 else row
+            a = self.rows.index(anchor)
+            lo, hi = sorted((a, idx))
+            self._set_selected_rows(self.rows[lo:hi + 1])
+        elif multi_key:
+            rows = set(self.selected_rows)
+            if row in rows and len(rows) > 1:
+                rows.remove(row)
+                focus_row = sorted(rows, key=lambda r: self.rows.index(r))[0]
+            else:
+                rows.add(row)
+            self._set_selected_rows(rows)
+            self._selection_anchor = row
+        else:
+            self._set_selected_rows([row])
+            self._selection_anchor = row
+
+        self._focus_row_editor(focus_row)
 
     def _update_quality(self, path):
         q = read_audio_quality(path)
@@ -1941,25 +2042,48 @@ class Tagr(QMainWindow):
     # ── Supprimer ─────────────────────────────────────────────────────────────
 
     def _on_delete_row(self,row):
-        idx=self.rows.index(row); was=idx==self.current_index
-        self.files.pop(idx); self.rows.pop(idx)
-        self.list_layout.removeWidget(row); row.deleteLater()
-        if was:
-            self.current_index=-1
-            if self.rows:
-                next_idx=min(idx,len(self.rows)-1)
-                QTimer.singleShot(0, lambda r=self.rows[next_idx]: self._on_row_select(r))
+        rows = list(self.selected_rows) if row in self.selected_rows and len(self.selected_rows) > 1 else [row]
+        self._delete_rows(rows)
+
+    def _delete_rows(self, rows):
+        rows = [r for r in dict.fromkeys(rows) if r in self.rows]
+        if not rows:
+            return
+        idxs = sorted(self.rows.index(r) for r in rows)
+        first_idx = idxs[0]
+        current_path = self.files[self.current_index] if self.current_index >= 0 else None
+        deleted_current = current_path in {r.path for r in rows}
+
+        for idx in reversed(idxs):
+            row = self.rows.pop(idx)
+            self.files.pop(idx)
+            self.list_layout.removeWidget(row)
+            row.deleteLater()
+
+        self.selected_rows.clear()
+        self.current_index = -1
+
+        if self.rows:
+            if current_path and not deleted_current:
+                for row in self.rows:
+                    if row.path == current_path:
+                        QTimer.singleShot(0, lambda r=row: self._on_row_select(r))
+                        break
             else:
-                self.right.show_empty()
-        elif self.current_index>idx:
-            self.current_index-=1
+                next_idx = min(first_idx, len(self.rows) - 1)
+                QTimer.singleShot(0, lambda r=self.rows[next_idx]: self._on_row_select(r))
+        else:
+            self.right.show_empty()
         if not self.files:
             self.hint.show()
         self._cfg["recent_files"]=[r.path for r in self.rows]; save_config(self._cfg)
         self._update_count()
 
     def _delete_selected(self):
-        if self.current_index>=0: self._on_delete_row(self.rows[self.current_index])
+        rows = list(self.selected_rows)
+        if not rows and self.current_index>=0:
+            rows = [self.rows[self.current_index]]
+        self._delete_rows(rows)
 
     # ── Pochette ──────────────────────────────────────────────────────────────
 
@@ -2565,6 +2689,9 @@ class Tagr(QMainWindow):
             if w >= 1000 and h >= 1000:
                 quality = "Bonne qualité"
                 qcolor = ACCENT
+            elif w >= 640 and h >= 640 and w == h:
+                quality = "Carrée Spotify"
+                qcolor = ACCENT
             elif w >= 500 and h >= 500:
                 quality = "Qualité correcte"
                 qcolor = WARN
@@ -2903,33 +3030,12 @@ class Tagr(QMainWindow):
         d.exec()
 
     def _detect_duplicates(self):
-        seen = {}
-        # Reset d'abord toutes les couleurs
+        # Anciennement, Tagr colorait les doublons en orange dans la colonne gauche.
+        # On garde uniquement le reset visuel : la détection reste disponible ailleurs.
         for row in self.rows:
             try:
-                sel = row._selected
-                color = TEXT if not sel else TEXT
                 row.lbl_t.setStyleSheet(
                     f"color:{TEXT};font-size:12px;font-weight:bold;background:transparent;")
-            except: pass
-        # Signaler uniquement si titre ET artiste sont tous les deux renseignés
-        for i, row in enumerate(self.rows):
-            try:
-                tags = self.tags_cache.get(row.path, {})
-                t = tags.get("title","").lower().strip()
-                a = tags.get("artist","").lower().strip()
-                if not t or not a:
-                    continue  # Ignorer si l'un des deux est vide
-                key = (t, a)
-                if key in seen:
-                    row.lbl_t.setStyleSheet(
-                        f"color:{WARN};font-size:12px;font-weight:bold;background:transparent;")
-                    try:
-                        self.rows[seen[key]].lbl_t.setStyleSheet(
-                            f"color:{WARN};font-size:12px;font-weight:bold;background:transparent;")
-                    except: pass
-                else:
-                    seen[key] = i
             except: pass
 
     def _duplicate_groups(self):
@@ -3431,9 +3537,9 @@ class Tagr(QMainWindow):
 
 
     def _deselect_all(self):
-        if self.current_index >= 0:
-            self.rows[self.current_index].set_selected(False)
+        self._clear_row_selection()
         self.current_index = -1
+        self._selection_anchor = None
         self._stop_play()
         self.right.show_empty()
 
@@ -3452,10 +3558,18 @@ class Tagr(QMainWindow):
         r = subprocess.run(["which", "yt-dlp"], capture_output=True)
         return r.stdout.decode().strip() if r.returncode == 0 else None
 
+    def _has_ytdlp_module(self):
+        try:
+            import yt_dlp
+            return True
+        except Exception:
+            return False
+
     def _download_from_url(self):
         ytdlp = self._find_ytdlp()
-        if not ytdlp:
-            self._flash("yt-dlp introuvable — brew install yt-dlp", err=True)
+        has_ytdlp_module = self._has_ytdlp_module()
+        if not ytdlp and not has_ytdlp_module:
+            self._flash("yt-dlp introuvable — installe les dépendances Tagr", err=True)
             return
 
         from PyQt6.QtWidgets import QDialog, QComboBox
@@ -3484,7 +3598,7 @@ class Tagr(QMainWindow):
         fmt_row = QHBoxLayout(); fmt_row.setSpacing(10)
         fmt_row.addWidget(QLabel("Format :", styleSheet=f"color:{TEXTM};font-size:10px;"))
         fmt_combo = QComboBox()
-        fmt_combo.addItems(["Meilleure qualité (natif)", "MP3 320k"])
+        fmt_combo.addItems(["MP3 320k", "Meilleure qualité (natif)"])
         fmt_combo.setStyleSheet(
             f"QComboBox{{background:{FIELDBG};color:{TEXT};border:1px solid {BORDER};"
             f"border-radius:5px;padding:6px 8px;font-size:11px;}}"
@@ -3519,12 +3633,16 @@ class Tagr(QMainWindow):
         dl_btn = QPushButton("Télécharger")
         dl_btn.setStyleSheet(
             f"QPushButton{{background:{ACCENT};color:#000;font-weight:bold;border:none;"
-            f"padding:10px 24px;font-size:12px;border-radius:5px;}}"
-            f"QPushButton:hover{{background:{ACCENT2};}}")
+            f"padding:11px;font-size:12px;border-radius:5px;}}"
+            f"QPushButton:hover{{background:{ACCENT2};}}"
+            f"QPushButton:disabled{{background:{PANEL};color:{TEXTD};}}")
         dl_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        brow = QHBoxLayout()
-        brow.addStretch(); brow.addWidget(dl_btn)
-        v.addLayout(brow)
+        # Stub pour compatibilité avec les refs au cancel_dl_btn dans do_download
+        class _FakeBtn:
+            def setEnabled(self, v): pass
+            def setText(self, v): pass
+        cancel_dl_btn = _FakeBtn()
+        v.addWidget(dl_btn)
 
         status_lbl = QLabel("")
         status_lbl.setStyleSheet(f"color:{TEXTD};font-size:9px;")
@@ -3533,7 +3651,22 @@ class Tagr(QMainWindow):
         # Etat du worker en cours
         self._dl_worker_ref = [None]
 
+        # Détecter ffmpeg une seule fois, en dehors du slot
+        import sys as _sys_dl
+        _exe_dir = os.path.dirname(_sys_dl.executable)
+        _ffmpeg_candidates = [
+            os.path.join(_exe_dir, "ffmpeg"),
+            os.path.join(os.path.dirname(_exe_dir), "MacOS", "ffmpeg"),
+            os.path.join(os.path.dirname(_exe_dir), "Resources", "ffmpeg"),
+            "/opt/homebrew/bin/ffmpeg",
+            "/usr/local/bin/ffmpeg",
+            "/usr/bin/ffmpeg",
+        ]
+        _found_ffmpeg = next((p for p in _ffmpeg_candidates if os.path.isfile(p)), None)
+        _ffmpeg_dir = os.path.dirname(_found_ffmpeg) if _found_ffmpeg else "/opt/homebrew/bin"
+
         def do_download():
+          try:
             url = url_input.text().strip()
             if not url:
                 status_lbl.setStyleSheet(f"color:{ERROR};font-size:9px;")
@@ -3543,25 +3676,66 @@ class Tagr(QMainWindow):
             dest = dl_dest[0]
             fmt_idx = fmt_combo.currentIndex()
             tpl = os.path.join(dest, "%(artist)s - %(title)s.%(ext)s")
+            worker_opts = None
 
-            if fmt_idx == 0:
-                cmd = [ytdlp, "-f", "bestaudio",
-                       "-o", tpl, "--no-playlist", "--add-metadata", url]
+            if has_ytdlp_module:
+                worker_opts = {
+                    "outtmpl": tpl,
+                    "noplaylist": True,
+                    "quiet": True,
+                    "no_warnings": True,
+                }
+                _ffmpeg_loc2 = _ffmpeg_dir
+                _sc_cookies = "safari" if "soundcloud.com" in url else None
+                if fmt_idx == 0:
+                    worker_opts.update({
+                        "format": "bestaudio/best",
+                        "ffmpeg_location": _ffmpeg_loc2,
+                        "writethumbnail": True,
+                        "cookiesfrombrowser": (_sc_cookies, None, None, None) if _sc_cookies else None,
+                        "postprocessors": [
+                            {"key": "FFmpegExtractAudio", "preferredcodec": "mp3", "preferredquality": "0"},
+                            {"key": "EmbedThumbnail"},
+                            {"key": "FFmpegMetadata"},
+                        ],
+                    })
+                else:
+                    worker_opts.update({
+                        "format": "bestaudio/best",
+                        "ffmpeg_location": _ffmpeg_loc2,
+                        "cookiesfrombrowser": (_sc_cookies, None, None, None) if _sc_cookies else None,
+                        "postprocessors": [{"key": "FFmpegMetadata"}],
+                    })
+                # Retirer les None
+                worker_opts = {k: v for k, v in worker_opts.items() if v is not None}
+                cmd = None
             else:
-                cmd = [ytdlp, "-x", "--audio-format", "mp3", "--audio-quality", "0",
-                       "-o", tpl, "--no-playlist", "--embed-thumbnail", "--add-metadata", url]
+                _ffmpeg_loc = _ffmpeg_dir
+                # SoundCloud nécessite les cookies du navigateur
+                _sc_extra = ["--cookies-from-browser", "safari"] if "soundcloud.com" in url else []
+                if fmt_idx == 0:
+                    cmd = [ytdlp, "-x", "--audio-format", "mp3", "--audio-quality", "0",
+                           "--ffmpeg-location", _ffmpeg_loc,
+                           "-o", tpl, "--no-playlist", "--embed-thumbnail", "--add-metadata",
+                           *_sc_extra, url]
+                else:
+                    cmd = [ytdlp, "-f", "bestaudio",
+                           "--ffmpeg-location", _ffmpeg_loc,
+                           "-o", tpl, "--no-playlist", "--add-metadata",
+                           *_sc_extra, url]
 
             before_set = set(
                 os.path.join(dest, f) for f in os.listdir(dest)
-                if f.endswith((".mp3", ".flac", ".m4a", ".aac", ".wav"))
+                if f.lower().endswith((".mp3", ".flac", ".m4a", ".aac", ".wav", ".opus", ".webm", ".ogg", ".oga"))
             ) if os.path.isdir(dest) else set()
 
             dl_btn.setEnabled(False)
             dl_btn.setText("Téléchargement...")
+            cancel_dl_btn.setEnabled(True)
             status_lbl.setStyleSheet(f"color:{ACCENT};font-size:9px;")
             status_lbl.setText("Téléchargement en cours...")
 
-            worker = DlWorker(cmd, dest, before_set)
+            worker = DlWorker(cmd, dest, before_set, url=url, ytdlp_opts=worker_opts)
             self._dl_worker_ref[0] = worker
 
             def on_success(path):
@@ -3569,6 +3743,7 @@ class Tagr(QMainWindow):
                 status_lbl.setText(f"✓ {os.path.basename(path)}")
                 dl_btn.setText("Télécharger")
                 dl_btn.setEnabled(True)
+                cancel_dl_btn.setEnabled(False)
                 if path not in self.files:
                     self.files.append(path)
                     self._add_row(path)
@@ -3584,21 +3759,37 @@ class Tagr(QMainWindow):
                 status_lbl.setText(f"Erreur : {msg}")
                 dl_btn.setText("Réessayer")
                 dl_btn.setEnabled(True)
+                cancel_dl_btn.setEnabled(False)
 
             worker.success.connect(on_success)
             worker.error.connect(on_error)
             self._workers.append(worker)
             worker.start()
+          except Exception as _e:
+            status_lbl.setStyleSheet(f"color:{ERROR};font-size:9px;")
+            status_lbl.setText(f"Erreur : {str(_e)[:120]}")
+            dl_btn.setText("Réessayer")
+            dl_btn.setEnabled(True)
 
         dl_btn.clicked.connect(do_download)
+        def cancel_download():
+            worker = self._dl_worker_ref[0]
+            if worker:
+                cancel_dl_btn.setEnabled(False)
+                status_lbl.setStyleSheet(f"color:{TEXTD};font-size:9px;")
+                status_lbl.setText("Annulation en cours...")
+                worker.cancel()
         url_input.returnPressed.connect(
             lambda: do_download() if dl_btn.isEnabled() else None)
 
-        # Echap ferme via keyPressEvent (pas QShortcut)
+        # Echap ferme, Entrée lance DL, on bloque la propagation vers la fenêtre principale
         orig_key = d.keyPressEvent
         def dlg_key(event):
             if event.key() == Qt.Key.Key_Escape:
                 d.reject()
+            elif event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
+                if dl_btn.isEnabled():
+                    do_download()
             else:
                 orig_key(event)
         d.keyPressEvent = dlg_key
@@ -3624,7 +3815,7 @@ class Tagr(QMainWindow):
 
 # ── Entrypoint ────────────────────────────────────────────────────────────────
 
-APP_VERSION = "3.0"
+APP_VERSION = "3.1"
 
 def _handle_cli_args(argv):
     args = set(argv[1:])
