@@ -15,20 +15,21 @@ Edit metadata, find cover art, and download audio from the web, all in one place
 - **Download** — paste a YouTube, SoundCloud or Bandcamp URL and get the audio file directly in Tagr
 - **Audio tools** — trim, normalize to -14 LUFS, convert format
 - **Multiple selection** — select and manage several files at once
+- **Bilingual UI** — switch between French and English on the fly
 
 ---
 
 ## Installation
 
-1. Download `Tagr-v1.0.zip` from the [latest release](https://github.com/lejefe92/Tagr/releases/latest)
+1. Download `Tagr-v1.3.zip` from the [latest release](https://github.com/lejefe92/Tagr/releases/latest)
 2. Unzip and drag `Tagr.app` to your Applications folder
 3. First launch: **right-click → Open** (required to bypass macOS Gatekeeper on unsigned apps)
 
 ### Requirements
 
 - macOS 12 or later
-- [ffmpeg](https://ffmpeg.org) — install via Homebrew: `brew install ffmpeg`
-- [yt-dlp](https://github.com/yt-dlp/yt-dlp) — for URL downloads: `brew install yt-dlp`
+
+> `ffmpeg` and `yt-dlp` are bundled inside the app — nothing to install.
 
 ---
 
