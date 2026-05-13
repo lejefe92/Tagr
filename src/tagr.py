@@ -31,7 +31,7 @@ _TRANSLATIONS = {
         "Retirer de la liste": "Retirer de la liste",
         "Tout": "Tout", "Artiste": "Artiste", "Album": "Album", "Titre": "Titre",
         "A → Z": "A → Z",
-        "hint_drop": "Glisse des fichiers audio\\nou un dossier entier ici\\n\\nMP3  FLAC  M4A  AAC  OGG",
+        "hint_drop": "Glisse des fichiers audio\nou un dossier entier ici\n\nMP3  FLAC  M4A  AAC  OGG",
         "Ajouter des fichiers…": "Ajouter des fichiers…",
         "Ajouter un dossier…": "Ajouter un dossier…",
         "TITRE": "TITRE", "ARTISTE": "ARTISTE", "ALBUM": "ALBUM",
