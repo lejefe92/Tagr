@@ -8,7 +8,10 @@ mutagen_imports = collect_submodules('mutagen')
 a = Analysis(
     [os.path.expanduser('~/Documents/Tagr/src/tagr.py')],
     pathex=[os.path.expanduser('~/Documents/Tagr/src')],
-    binaries=[],
+    binaries=[
+        # ffmpeg statique embarqué
+        (os.path.expanduser('~/Documents/Tagr/assets/ffmpeg'), '.'),
+    ],
     datas=[],
     hiddenimports=[
         'mutagen','mutagen.mp3','mutagen.flac','mutagen.mp4',
@@ -17,6 +20,7 @@ a = Analysis(
         'PyQt6','PyQt6.QtWidgets','PyQt6.QtCore','PyQt6.QtGui','PyQt6.sip',
         'urllib','urllib.request','urllib.parse',
         'json','threading','subprocess','struct','wave','shutil','csv','pathlib',
+        'yt_dlp',
     ] + mutagen_imports,
     hookspath=[],
     hooksconfig={},
@@ -56,14 +60,14 @@ app = BUNDLE(
     name='Tagr.app',
     icon=os.path.expanduser('~/Documents/Tagr/assets/Tagr.icns'),
     bundle_identifier='com.tagr.app',
-    version='3.0',
+    version='3.1',
     info_plist={
         'NSPrincipalClass': 'NSApplication',
         'NSAppleScriptEnabled': False,
         'CFBundleName': 'Tagr',
         'CFBundleDisplayName': 'Tagr',
-        'CFBundleVersion': '3.0',
-        'CFBundleShortVersionString': '3.0',
+        'CFBundleVersion': '3.1',
+        'CFBundleShortVersionString': '3.1',
         'NSHighResolutionCapable': True,
         'LSMinimumSystemVersion': '12.0',
         'NSRequiresAquaSystemAppearance': False,

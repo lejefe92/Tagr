@@ -6,3 +6,4 @@ dist/
 build/
 *.log
 backups/audio/
+assets/ffmpeg

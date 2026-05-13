@@ -89,9 +89,95 @@ _TRANSLATIONS = {
         "Écraser le fichier": "Écraser le fichier",
         "Créer un nouveau fichier": "Créer un nouveau fichier",
         "Comment sauvegarder les modifications ?": "Comment sauvegarder les modifications ?",
+        "Exporter les prêts": "Exporter les prêts",
+        "Exporter tout": "Exporter tout",
+        "Ignorer": "Ignorer",
+        "Quitter sans sauvegarder": "Quitter sans sauvegarder",
+        "Sauvegarder et quitter": "Sauvegarder et quitter",
+        "spotify_confirm": "Créer les copies prêtes pour Spotify ?",
+        "spotify_save_tags": "Sauvegarder les tags avant l'export Spotify ?",
+        "Statut Spotify": "Statut Spotify",
+        "img_url_placeholder": "Coller une URL d'image directement (https://...)",
+        "ffmpeg_not_found": "ffmpeg introuvable — brew install ffmpeg",
+        "Normaliser le volume": "Normaliser le volume",
+        "Statistiques": "Statistiques",
+        "Doublons possibles": "Doublons possibles",
+        "Avant / Apres normalisation": "Avant / Apres normalisation",
+        "Champs en lot": "Champs en lot",
+        "Renommer par lot": "Renommer par lot",
+        "Aperçu du renommage": "Aperçu du renommage",
+        "Contrôle Spotify": "Contrôle Spotify",
+        "Convertir le format": "Convertir le format",
+        "Couper le morceau": "Couper le morceau",
+        "Sauvegarder": "Sauvegarder",
+        "Raccourcis clavier": "Raccourcis clavier",
+        "Recadrer la pochette": "Recadrer la pochette",
+        "Recherche de pochette": "Recherche de pochette",
+        "Export Spotify Ready": "Export Spotify Ready",
+        "Modifications non sauvegardées": "Modifications non sauvegardées",
+        "dl_tooltip": "Télécharger depuis URL (YouTube, SoundCloud…)",
+        "img_astuce": "Astuce : clic droit sur une image dans Chrome → Copier l'adresse de l'image",
+        "trim_hint": "Glisse les poignées vertes pour sélectionner · Déplace la sélection par le centre",
+        "crop_hint": "Scroll pour zoomer · Glisser pour déplacer · Sortie carrée 640x640",
+        "mp3_info": "MP3 320 kbps. Le fichier original est conserve.",
+        "Statut Spotify": "Statut Spotify",
+        "À vérifier Spotify : ": "À vérifier Spotify : ",
+        "Aucun problème Spotify restant": "Aucun problème Spotify restant",
+        "Choisir le dossier Spotify Ready": "Choisir le dossier Spotify Ready",
+        "Normalisation a -14 LUFS (standard Spotify / Apple Music)": "Normalisation a -14 LUFS (standard Spotify / Apple Music)",
+        "n_unsaved": "{n} fichier(s) non sauvegardé(s).",
+        "save_before_quit": "Sauvegarder avant de quitter ?",
+        "export_note": "L'export copie les fichiers tels qu'ils sont sur disque.",
+        "n_renames": "{n} renommage(s) prévu(s)",
+        "file_modified": "Fichier modifié : {name}",
+        "Haute qualité": "Haute qualité",
+        "Bonne qualité": "Bonne qualité",
+        "Qualité standard": "Qualité standard",
+        "Basse qualité": "Basse qualité",
+        "dl_file_not_found": "Fichier introuvable après téléchargement",
+        "dl_cancelled": "Téléchargement annulé",
+        "dl_timeout": "Timeout — téléchargement trop long",
+        "dl_cancelled2": "Téléchargement annulé",
+        "duration_error": "Impossible de lire la durée du fichier",
+        "Année": "Année",
+        "num_tracks_hint": "Numéroter les pistes dans l'ordre de la liste",
+        "yt_not_found2": "yt-dlp introuvable — installe les dépendances Tagr",
         "lang_toggle": "English", "lang_name": "Français",
         "lang_restart": "Redémarrez Tagr pour appliquer la langue.",
         "lang_title": "Langue / Language",
+        "empty_title": "Sélectionne un fichier",
+        "empty_hint": "↑ ↓ pour naviguer · Cmd+S pour sauvegarder · Entrée pour sauvegarder",
+        "unknown_artist": "Artiste inconnu",
+        "cover_sources": "Sources : Deezer · iTunes · MusicBrainz · Priorité artiste",
+        "cover_no_results": "Aucun résultat trouvé automatiquement.\nColle une URL d'image ci-dessus.",
+        "ffmpeg_preview_error": "Erreur ffmpeg preview",
+        "duration_label": "Durée : {duration}",
+        "start_time": "Début (m:ss.s)",
+        "end_time": "Fin (m:ss.s)",
+        "file_label": "Fichier : {name}",
+        "target_format": "Format cible :",
+        "apply_from_selected": "Appliquer depuis le morceau sélectionné :",
+        "rename_pattern": "Pattern de renommage :",
+        "rename_variables": "Variables : {titre}  {artiste}  {album}  {piste}  {annee}",
+        "apply_all_files": "Appliquer a tous les fichiers de la liste",
+        "overwrite_original": "Ecraser le fichier original",
+        "stats_total_files": "Fichiers total",
+        "stats_no_cover": "Sans pochette",
+        "stats_missing_tags": "Tags incomplets",
+        "stats_formats": "Formats :",
+        "stats_quality": "Qualite :",
+        "spotify_ready_review": "{ready} prêt(s) · {review} à vérifier",
+        "spotify_check": "A vérifier",
+        "missing_artist": "artiste manquant",
+        "missing_title": "titre manquant",
+        "missing_cover": "pochette manquante",
+        "not_mp3": "format non MP3",
+        "possible_duplicate": "doublon possible",
+        "file_previous_next": "Fichier precedent / suivant",
+        "remove_current_file": "Retirer le fichier de la liste",
+        "shortcuts_audio_tools": "Couper, Normaliser, Convertir, Renommer",
+        "shortcuts_spotify_export": "Exporter les copies prêtes pour Spotify",
+        "preview_compare": "Ecoute comparee : Original vs Normalise (-14 LUFS)",
     },
     "en": {
         "app_title": "Tagr — Audio Tag Editor",
@@ -161,9 +247,115 @@ _TRANSLATIONS = {
         "Écraser le fichier": "Overwrite file",
         "Créer un nouveau fichier": "Create new file",
         "Comment sauvegarder les modifications ?": "How to save changes?",
+        "Exporter les prêts": "Export ready files",
+        "Exporter tout": "Export all",
+        "Ignorer": "Ignore",
+        "Quitter sans sauvegarder": "Quit without saving",
+        "Sauvegarder et quitter": "Save and quit",
+        "spotify_confirm": "Create Spotify-ready copies?",
+        "spotify_save_tags": "Save tags before Spotify export?",
+        "Statut Spotify": "Spotify Status",
+        "img_url_placeholder": "Paste an image URL directly (https://...)",
+        "ffmpeg_not_found": "ffmpeg not found — brew install ffmpeg",
+        "Normaliser le volume": "Normalize volume",
+        "Statistiques": "Statistics",
+        "Doublons possibles": "Possible duplicates",
+        "Avant / Apres normalisation": "Before / After normalization",
+        "Champs en lot": "Batch fields",
+        "Renommer par lot": "Batch rename",
+        "Aperçu du renommage": "Rename preview",
+        "Contrôle Spotify": "Spotify control",
+        "Convertir le format": "Convert format",
+        "Couper le morceau": "Trim audio",
+        "Sauvegarder": "Save",
+        "Raccourcis clavier": "Keyboard shortcuts",
+        "Recadrer la pochette": "Crop cover art",
+        "Recherche de pochette": "Search cover art",
+        "Export Spotify Ready": "Export Spotify Ready",
+        "Modifications non sauvegardées": "Unsaved changes",
+        "dl_tooltip": "Download from URL (YouTube, SoundCloud…)",
+        "img_astuce": "Tip: right-click an image in Chrome → Copy image address",
+        "trim_hint": "Drag green handles to select · Move selection from center",
+        "crop_hint": "Scroll to zoom · Drag to move · Square output 640x640",
+        "mp3_info": "MP3 320 kbps. Original file is kept.",
+        "Statut Spotify": "Spotify Status",
+        "À vérifier Spotify : ": "Spotify issue: ",
+        "Aucun problème Spotify restant": "No remaining Spotify issues",
+        "Choisir le dossier Spotify Ready": "Choose Spotify Ready folder",
+        "Normalisation a -14 LUFS (standard Spotify / Apple Music)": "Normalize to -14 LUFS (Spotify / Apple Music standard)",
+        "n_unsaved": "{n} unsaved file(s).",
+        "save_before_quit": "Save before quitting?",
+        "export_note": "Export copies files as they are on disk.",
+        "n_renames": "{n} rename(s) planned",
+        "file_modified": "File modified: {name}",
+        "Haute qualité": "High quality",
+        "Bonne qualité": "Good quality",
+        "Qualité standard": "Standard quality",
+        "Basse qualité": "Low quality",
+        "dl_file_not_found": "File not found after download",
+        "dl_cancelled": "Download cancelled",
+        "dl_timeout": "Timeout — download took too long",
+        "MP3 320 kbps. Le fichier original est conserve.": "MP3 320 kbps. Original file is kept.",
+        "Scroll pour zoomer · Glisser pour déplacer · Sortie carrée 640x640": "Scroll to zoom · Drag to move · Square output 640x640",
+        "Redémarrez Tagr pour appliquer la langue.": "Restart Tagr to apply the language change.",
+        "Coller une URL d'image directement (https://...)": "Paste an image URL directly (https://...)",
+        "Astuce : clic droit sur une image dans Chrome → Copier l'adresse de l'image": "Tip: right-click an image in Chrome → Copy image address",
+        "{n} fichier(s) non sauvegardé(s).": "{n} unsaved file(s).",
+        "Créer les copies prêtes pour Spotify ?": "Create Spotify-ready copies?",
+        "Tagr — Éditeur de tags audio": "Tagr — Audio Tag Editor",
+        "Sauvegarder avant de quitter ?": "Save before quitting?",
+        "Sauvegarder les tags avant l'export Spotify ?": "Save tags before Spotify export?",
+        "L'export copie les fichiers tels qu'ils sont sur disque.": "Export copies files as they are on disk.",
+        "ffmpeg introuvable — brew install ffmpeg": "ffmpeg not found — brew install ffmpeg",
+        "Glisse les poignées vertes pour sélectionner · Déplace la sélection par le centre": "Drag green handles to select · Move selection from center",
+        "Sélectionne un fichier": "Select a file",
+        "Télécharger depuis URL (YouTube, SoundCloud…)": "Download from URL (YouTube, SoundCloud…)",
+        "Fichier modifié : {name}": "File modified: {name}",
+        "yt-dlp introuvable — brew install yt-dlp": "yt-dlp not found — brew install yt-dlp",
+        "{n} renommage(s) prévu(s)": "{n} rename(s) planned",
+        "YouTube · SoundCloud · Bandcamp · et + de 1000 sites": "YouTube · SoundCloud · Bandcamp · and 1000+ sites",
+        "Glisse des fichiers audio\\\\nou un dossier entier ici\\\\n\\\\nMP3  FLAC  M4A  AAC  OGG": "Drop audio files\\\\nor a folder here\\\\n\\\\nMP3  FLAC  M4A  AAC  OGG",
+        "dl_cancelled2": "Download cancelled",
+        "duration_error": "Cannot read file duration",
+        "Année": "Year",
+        "num_tracks_hint": "Number tracks in list order",
+        "yt_not_found2": "yt-dlp not found — install Tagr dependencies",
         "lang_toggle": "Français", "lang_name": "English",
         "lang_restart": "Restart Tagr to apply the language change.",
         "lang_title": "Langue / Language",
+        "empty_title": "Select a file",
+        "empty_hint": "↑ ↓ to navigate · Cmd+S to save · Enter to save",
+        "unknown_artist": "Unknown artist",
+        "cover_sources": "Sources: Deezer · iTunes · MusicBrainz · Artist first",
+        "cover_no_results": "No automatic result found.\nPaste an image URL above.",
+        "ffmpeg_preview_error": "ffmpeg preview error",
+        "duration_label": "Duration: {duration}",
+        "start_time": "Start (m:ss.s)",
+        "end_time": "End (m:ss.s)",
+        "file_label": "File: {name}",
+        "target_format": "Target format:",
+        "apply_from_selected": "Apply from selected track:",
+        "rename_pattern": "Rename pattern:",
+        "rename_variables": "Variables: {title}  {artist}  {album}  {track}  {year}",
+        "apply_all_files": "Apply to all files in the list",
+        "overwrite_original": "Overwrite original file",
+        "stats_total_files": "Total files",
+        "stats_no_cover": "No cover art",
+        "stats_missing_tags": "Incomplete tags",
+        "stats_formats": "Formats:",
+        "stats_quality": "Quality:",
+        "spotify_ready_review": "{ready} ready · {review} to review",
+        "spotify_check": "Review",
+        "missing_artist": "missing artist",
+        "missing_title": "missing title",
+        "missing_cover": "missing cover art",
+        "not_mp3": "not MP3",
+        "possible_duplicate": "possible duplicate",
+        "file_previous_next": "Previous / next file",
+        "remove_current_file": "Remove current file",
+        "shortcuts_audio_tools": "Trim, Normalize, Convert, Rename",
+        "shortcuts_spotify_export": "Export Spotify-ready copies",
+        "preview_compare": "Compare listening: Original vs Normalized (-14 LUFS)",
     }
 }
 
@@ -278,10 +470,14 @@ def name_from_pattern(pattern, tags, path):
     base = os.path.splitext(os.path.basename(path))[0]
     values = {
         "{titre}": clean_text(tags.get("title")) or base,
+        "{title}": clean_text(tags.get("title")) or base,
         "{artiste}": clean_text(tags.get("artist")) or "Inconnu",
+        "{artist}": clean_text(tags.get("artist")) or "Unknown",
         "{album}": clean_text(tags.get("album")),
         "{piste}": clean_text(tags.get("track")),
+        "{track}": clean_text(tags.get("track")),
         "{annee}": clean_text(tags.get("year")),
+        "{year}": clean_text(tags.get("year")),
     }
     name = pattern
     for key, value in values.items():
@@ -461,10 +657,10 @@ def quality_label(path, q):
             return "Hi-Res Lossless", "#a78bfa"   # violet
         return "Lossless (CD)", "#1DB954"          # vert
     br = q.get("bitrate") or 0
-    if br >= 256:  return "Haute qualité",    "#1DB954"   # vert
-    if br >= 192:  return "Bonne qualité",    "#86efac"   # vert clair
-    if br >= 128:  return "Qualité standard", "#e8a538"   # orange
-    return "Basse qualité", "#e05252"                     # rouge
+    if br >= 256:  return T("Haute qualité"),    "#1DB954"   # vert
+    if br >= 192:  return T("Bonne qualité"),    "#86efac"   # vert clair
+    if br >= 128:  return T("Qualité standard"), "#e8a538"   # orange
+    return T("Basse qualité"), "#e05252"                     # rouge
 
 # ── Recherche ─────────────────────────────────────────────────────────────────
 
@@ -599,7 +795,7 @@ class CropDialog(QDialog):
 
     def __init__(self, parent, img):
         super().__init__(parent)
-        self.setWindowTitle("Recadrer la pochette")
+        self.setWindowTitle(T("Recadrer la pochette"))
         self.setModal(True); self.setStyleSheet(f"background:{BG2};color:{TEXT};")
         self.orig=img; self._zoom=1.0; self._offset=[0,0]
         self._drag_start=None; self._preview_size=400
@@ -608,10 +804,10 @@ class CropDialog(QDialog):
 
     def _build(self):
         v=QVBoxLayout(self); v.setContentsMargins(20,20,20,20); v.setSpacing(12)
-        tk=QLabel("Recadrer la pochette"); tk.setStyleSheet(f"font-size:14px;font-weight:bold;")
+        tk=QLabel(T("Recadrer la pochette")); tk.setStyleSheet(f"font-size:14px;font-weight:bold;")
         v.addWidget(tk)
 
-        sub=QLabel("Scroll pour zoomer · Glisser pour déplacer · Sortie carrée 640x640")
+        sub=QLabel(T("crop_hint"))
         sub.setStyleSheet(f"font-size:9px;color:{TEXTD};"); v.addWidget(sub)
 
         self.canvas=QLabel(); self.canvas.setFixedSize(self._preview_size,self._preview_size)
@@ -621,8 +817,8 @@ class CropDialog(QDialog):
 
         # Zoom slider
         zrow=QHBoxLayout()
-        QLabel("Zoom").setParent(None)
-        zl=QLabel("Zoom"); zl.setStyleSheet(f"color:{TEXTD};font-size:9px;")
+        QLabel(T("Zoom")).setParent(None)
+        zl=QLabel(T("Zoom")); zl.setStyleSheet(f"color:{TEXTD};font-size:9px;")
         self.zoom_slider=QSlider(Qt.Orientation.Horizontal)
         self.zoom_slider.setRange(10,400); self.zoom_slider.setValue(100)
         self.zoom_slider.setStyleSheet(f"QSlider::groove:horizontal{{background:{BORDER};height:4px;border-radius:2px;}}"
@@ -633,10 +829,10 @@ class CropDialog(QDialog):
         v.addLayout(zrow)
 
         brow=QHBoxLayout(); brow.setSpacing(10)
-        ok=QPushButton("Appliquer")
+        ok=QPushButton(T("Appliquer"))
         ok.setStyleSheet(f"background:{ACCENT};color:#000;font-weight:bold;border:none;padding:9px 20px;border-radius:4px;")
         ok.setCursor(Qt.CursorShape.PointingHandCursor); ok.clicked.connect(self._apply)
-        cancel=QPushButton("Annuler")
+        cancel=QPushButton(T("Annuler"))
         cancel.setStyleSheet(f"background:{PANEL};color:{TEXTM};border:none;padding:9px 20px;border-radius:4px;")
         cancel.setCursor(Qt.CursorShape.PointingHandCursor); cancel.clicked.connect(self.reject)
         brow.addStretch(); brow.addWidget(ok); brow.addWidget(cancel)
@@ -726,7 +922,7 @@ class CoverLabel(QLabel):
     def _reset(self):
         self.setPixmap(QPixmap())
         self.setScaledContents(False)
-        self.setText("Ajouter\nune pochette")
+        self.setText(T("Ajouter\nune pochette"))
         self.setStyleSheet(f"background:{PANEL};border-radius:6px;color:{TEXTD};"
                            f"font-size:13px;border:2px dashed {BORDER};")
 
@@ -744,7 +940,7 @@ class CoverLabel(QLabel):
                 e.acceptProposedAction()
                 self.setStyleSheet(f"background:{SELBG};border-radius:6px;color:{ACCENT};"
                                    f"font-size:11px;border:2px solid {ACCENT};")
-                self.setText("Déposer ici")
+                self.setText(T("Déposer ici"))
 
     def dragLeaveEvent(self,e):
         if self.pixmap() and not self.pixmap().isNull():
@@ -800,7 +996,7 @@ class FileRow(QFrame):
 
     def set_display(self,title,artist,cover=None):
         self.lbl_t.setText(title or os.path.basename(self.path))
-        self.lbl_a.setText(artist or "Artiste inconnu")
+        self.lbl_a.setText(artist or T("unknown_artist"))
         if cover:
             px=pil_to_qpixmap(cover,44); self.thumb.setPixmap(px); self.thumb.setScaledContents(True)
 
@@ -833,7 +1029,7 @@ class FileRow(QFrame):
         m.setStyleSheet(f"QMenu{{background:{PANEL2};color:{TEXT};border:1px solid {BORDER};padding:4px;}}"
                         f"QMenu::item{{padding:6px 16px;}}"
                         f"QMenu::item:selected{{background:{ERROR};color:{TEXT};}}")
-        m.addAction("Retirer de la liste",lambda:self.delete_signal.emit(self))
+        m.addAction(T("Retirer de la liste"),lambda:self.delete_signal.emit(self))
         m.exec(e.globalPosition().toPoint())
 
 # ── Cover picker ──────────────────────────────────────────────────────────────
@@ -843,7 +1039,7 @@ class CoverPicker(QDialog):
 
     def __init__(self, parent, results):
         super().__init__(parent)
-        self.setWindowTitle("Recherche de pochette")
+        self.setWindowTitle(T("Recherche de pochette"))
         self.setStyleSheet(f"background:{BG2};color:{TEXT};")
         self.setModal(True)
         self.setMinimumWidth(500)
@@ -857,23 +1053,23 @@ class CoverPicker(QDialog):
         lay.setSpacing(10); lay.setContentsMargins(20, 18, 20, 18)
 
         # Titre
-        title = QLabel("Recherche de pochette")
+        title = QLabel(T("Recherche de pochette"))
         title.setStyleSheet(f"font-size:15px;font-weight:bold;color:{TEXT};")
         lay.addWidget(title)
 
         # Sources
-        src_lbl = QLabel("Sources : Deezer · iTunes · MusicBrainz · Priorité artiste")
+        src_lbl = QLabel(T("cover_sources"))
         src_lbl.setStyleSheet(f"font-size:9px;color:{TEXTD};")
         lay.addWidget(src_lbl)
 
         # Champ URL directe
         url_row = QHBoxLayout(); url_row.setSpacing(8)
         self.url_input = QLineEdit()
-        self.url_input.setPlaceholderText("Coller une URL d'image directement (https://...)")
+        self.url_input.setPlaceholderText(T("img_url_placeholder"))
         self.url_input.setStyleSheet(
             f"background:{FIELDBG};color:{TEXT};border:1px solid {BORDER};"
             f"border-radius:4px;padding:7px 10px;font-size:11px;")
-        url_btn = QPushButton("Utiliser")
+        url_btn = QPushButton(T("Utiliser"))
         url_btn.setStyleSheet(
             f"background:{ACCENT};color:#000;font-weight:bold;border:none;"
             f"padding:7px 14px;border-radius:4px;font-size:11px;")
@@ -883,7 +1079,7 @@ class CoverPicker(QDialog):
         url_row.addWidget(url_btn)
         lay.addLayout(url_row)
 
-        hint = QLabel("Astuce : clic droit sur une image dans Chrome → Copier l'adresse de l'image")
+        hint = QLabel(T("img_astuce"))
         hint.setStyleSheet(f"font-size:8px;color:{TEXTD};")
         lay.addWidget(hint)
 
@@ -891,19 +1087,19 @@ class CoverPicker(QDialog):
         sep.setStyleSheet(f"color:{BORDER};"); lay.addWidget(sep)
 
         # Grille résultats
-        results_lbl = QLabel("Résultats automatiques :")
+        results_lbl = QLabel(T("Résultats automatiques :"))
         results_lbl.setStyleSheet(f"font-size:10px;color:{TEXTM};")
         lay.addWidget(results_lbl)
 
         self.grid = QGridLayout(); self.grid.setSpacing(8)
         lay.addLayout(self.grid)
 
-        self.no_results_lbl = QLabel("Chargement des résultats...")
+        self.no_results_lbl = QLabel(T("Chargement des résultats..."))
         self.no_results_lbl.setStyleSheet(f"color:{TEXTD};font-size:10px;")
         self.no_results_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
         lay.addWidget(self.no_results_lbl)
 
-        cancel = QPushButton("Fermer")
+        cancel = QPushButton(T("Fermer"))
         cancel.setStyleSheet(
             f"background:{PANEL};color:{TEXTM};border:none;"
             f"padding:8px 20px;font-size:11px;border-radius:4px;")
@@ -920,14 +1116,12 @@ class CoverPicker(QDialog):
                     f.done.connect(self._add)
                     f.start(); self.fetchers.append(f)
         else:
-            self.no_results_lbl.setText(
-                "Aucun résultat trouvé automatiquement.\n"
-                "Colle une URL d'image ci-dessus.")
+            self.no_results_lbl.setText(T("cover_no_results"))
 
     def _use_url(self):
         url = self.url_input.text().strip()
         if not url: return
-        self.no_results_lbl.setText("Chargement de l'image...")
+        self.no_results_lbl.setText(T("Chargement de l'image..."))
         self.no_results_lbl.show()
         f = ImageFetcher(url, {"title": "", "artist": "", "album": "",
                                 "source": "URL directe"})
@@ -1202,7 +1396,7 @@ class IPhoneTimeline(QWidget):
 class TrimDialog(QDialog):
     def __init__(self, parent, path, duration):
         super().__init__(parent)
-        self.setWindowTitle("Couper le morceau")
+        self.setWindowTitle(T("Couper le morceau"))
         self.setModal(True)
         self.setMinimumWidth(620)
         self.setStyleSheet(f"background:{BG2};color:{TEXT};")
@@ -1223,7 +1417,7 @@ class TrimDialog(QDialog):
         v.setSpacing(10)
 
         # Titre + nom fichier
-        tk = QLabel("Couper le morceau")
+        tk = QLabel(T("Couper le morceau"))
         tk.setStyleSheet(f"font-size:15px;font-weight:bold;color:{TEXT};")
         fn = QLabel(os.path.basename(self.path))
         fn.setStyleSheet(f"font-size:10px;color:{TEXTD};")
@@ -1238,7 +1432,7 @@ class TrimDialog(QDialog):
         row = QHBoxLayout()
         self.lbl_s = QLabel("0:00.0")
         self.lbl_s.setStyleSheet(f"color:{ACCENT};font-size:12px;font-weight:bold;")
-        self.lbl_d = QLabel(f"Durée : {self._fmt(self.duration)}")
+        self.lbl_d = QLabel(T("duration_label").replace("{duration}", self._fmt(self.duration)))
         self.lbl_d.setStyleSheet(f"color:{TEXTM};font-size:11px;")
         self.lbl_d.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lbl_e = QLabel(self._fmt(self.duration))
@@ -1264,13 +1458,13 @@ class TrimDialog(QDialog):
             col.addWidget(e); pr.addLayout(col)
             setattr(self, attr, e); return e
 
-        tfield("Début (m:ss.s)", "edit_s", "0:00.0").setText("0:00.0")
-        tfield("Fin (m:ss.s)",   "edit_e", self._fmt(self.duration)).setText(self._fmt(self.duration))
+        tfield(T("start_time"), "edit_s", "0:00.0").setText("0:00.0")
+        tfield(T("end_time"),   "edit_e", self._fmt(self.duration)).setText(self._fmt(self.duration))
         self.edit_s.editingFinished.connect(self._from_text_s)
         self.edit_e.editingFinished.connect(self._from_text_e)
 
         pr.addStretch()
-        reset = QPushButton("Tout sélectionner")
+        reset = QPushButton(T("Tout sélectionner"))
         reset.setStyleSheet(
             f"background:{PANEL};color:{TEXTM};border:none;"
             f"padding:8px 12px;font-size:10px;border-radius:4px;")
@@ -1279,7 +1473,7 @@ class TrimDialog(QDialog):
         pr.addWidget(reset, alignment=Qt.AlignmentFlag.AlignBottom)
         v.addLayout(pr)
 
-        hint = QLabel("Glisse les poignées vertes pour sélectionner · Déplace la sélection par le centre")
+        hint = QLabel(T("trim_hint"))
         hint.setStyleSheet(f"color:{TEXTD};font-size:9px;")
         v.addWidget(hint)
 
@@ -1289,21 +1483,21 @@ class TrimDialog(QDialog):
         # ── Boutons ────────────────────────────────────────────────────
         br = QHBoxLayout(); br.setSpacing(10)
 
-        self.prev_btn = QPushButton("▶  Écouter la sélection")
+        self.prev_btn = QPushButton(T("▶  Écouter la sélection"))
         self.prev_btn.setStyleSheet(
             f"background:{PANEL};color:{TEXT};border:none;"
             f"padding:10px 18px;font-size:11px;border-radius:5px;")
         self.prev_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.prev_btn.clicked.connect(self._toggle_preview)
 
-        apply_btn = QPushButton("Appliquer le découpage")
+        apply_btn = QPushButton(T("Appliquer le découpage"))
         apply_btn.setStyleSheet(
             f"background:{ACCENT};color:#000;font-weight:bold;border:none;"
             f"padding:10px 22px;font-size:12px;border-radius:5px;")
         apply_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         apply_btn.clicked.connect(self._apply)
 
-        cancel_btn = QPushButton("Annuler")
+        cancel_btn = QPushButton(T("Annuler"))
         cancel_btn.setStyleSheet(
             f"background:{PANEL};color:{TEXTM};border:none;"
             f"padding:10px 16px;font-size:11px;border-radius:5px;")
@@ -1341,7 +1535,7 @@ class TrimDialog(QDialog):
     def _update_labels(self, ts, te):
         self.lbl_s.setText(self._fmt(ts))
         self.lbl_e.setText(self._fmt(te))
-        self.lbl_d.setText(f"Durée : {self._fmt(te - ts)}")
+        self.lbl_d.setText(T("duration_label").replace("{duration}", self._fmt(te - ts)))
         self.edit_s.blockSignals(True); self.edit_e.blockSignals(True)
         self.edit_s.setText(self._fmt(ts))
         self.edit_e.setText(self._fmt(te))
@@ -1386,7 +1580,7 @@ class TrimDialog(QDialog):
         if self._play_proc and self._play_proc.poll() is None:
             self._play_proc.terminate()
             self._play_proc = None
-            self.prev_btn.setText("▶  Écouter la sélection")
+            self.prev_btn.setText(T("▶  Écouter la sélection"))
             return
 
         ts, te = self._get_times()
@@ -1396,7 +1590,7 @@ class TrimDialog(QDialog):
         ffmpeg = self._find_ffmpeg()
         if not ffmpeg:
             self.status.setStyleSheet(f"color:{ERROR};font-size:10px;")
-            self.status.setText("ffmpeg introuvable — brew install ffmpeg")
+            self.status.setText(T("ffmpeg_not_found"))
             return
 
         # Extraire la sélection dans un fichier tmp puis jouer avec afplay
@@ -1409,20 +1603,20 @@ class TrimDialog(QDialog):
         r = subprocess.run(cmd, capture_output=True)
         if r.returncode != 0:
             self.status.setStyleSheet(f"color:{ERROR};font-size:10px;")
-            self.status.setText("Erreur ffmpeg preview")
+            self.status.setText(T("ffmpeg_preview_error"))
             return
 
         try:
             self._play_proc = subprocess.Popen(
                 ["/usr/bin/afplay", tmp],
                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            self.prev_btn.setText("⏹  Stop")
+            self.prev_btn.setText(T("⏹  Stop"))
             def watch():
                 self._play_proc.wait()
                 try:
                     os.remove(tmp)
                 except: pass
-                QTimer.singleShot(0, lambda: self.prev_btn.setText("▶  Écouter la sélection"))
+                QTimer.singleShot(0, lambda: self.prev_btn.setText(T("▶  Écouter la sélection")))
             threading.Thread(target=watch, daemon=True).start()
         except Exception as ex:
             self.status.setStyleSheet(f"color:{ERROR};font-size:10px;")
@@ -1434,12 +1628,12 @@ class TrimDialog(QDialog):
         ts, te = self._get_times()
         if te - ts < 0.5:
             self.status.setStyleSheet(f"color:{ERROR};font-size:10px;")
-            self.status.setText("Sélection trop courte"); return
+            self.status.setText(T("Sélection trop courte")); return
 
         ffmpeg = self._find_ffmpeg()
         if not ffmpeg:
             self.status.setStyleSheet(f"color:{ERROR};font-size:10px;")
-            self.status.setText("ffmpeg introuvable — brew install ffmpeg"); return
+            self.status.setText(T("ffmpeg_not_found")); return
 
         base, ext = os.path.splitext(self.path)
         out = f"{base}_cut{ext}"
@@ -1448,7 +1642,7 @@ class TrimDialog(QDialog):
             out = f"{base}_cut{i}{ext}"; i += 1
 
         self.status.setStyleSheet(f"color:{ACCENT};font-size:10px;")
-        self.status.setText("Découpage en cours…")
+        self.status.setText(T("Découpage en cours…"))
         QApplication.processEvents()
 
         r = subprocess.run(
@@ -1556,7 +1750,7 @@ class DlWorker(QThread):
         if all_a:
             self.success.emit(max(all_a, key=os.path.getmtime))
         else:
-            self.error.emit("Fichier introuvable après téléchargement")
+            self.error.emit(T("dl_file_not_found"))
 
     def _run_python_ytdlp(self):
         class DownloadCancelled(Exception):
@@ -1581,11 +1775,11 @@ class DlWorker(QThread):
             with yt_dlp.YoutubeDL(opts) as ydl:
                 ydl.extract_info(self.url, download=True)
             if self._cancelled:
-                self.error.emit("Téléchargement annulé")
+                self.error.emit(T("dl_cancelled"))
             else:
                 self._emit_downloaded_file()
         except DownloadCancelled:
-            self.error.emit("Téléchargement annulé")
+            self.error.emit(T("dl_cancelled"))
         except Exception as ex:
             self.error.emit(str(ex))
 
@@ -1604,10 +1798,10 @@ class DlWorker(QThread):
                     self._proc.communicate(timeout=5)
                 except Exception:
                     pass
-                self.error.emit("Timeout — téléchargement trop long")
+                self.error.emit(T("dl_timeout"))
                 return
             if self._cancelled:
-                self.error.emit("Téléchargement annulé")
+                self.error.emit(T("dl_cancelled"))
                 return
             if self._proc.returncode != 0:
                 msg = err[-300:] if err else "Erreur inconnue"
@@ -1704,8 +1898,8 @@ class Tagr(QMainWindow):
                 f"QMenu{{background:{PANEL2};color:{TEXT};border:1px solid {BORDER};padding:4px;}}"
                 f"QMenu::item{{padding:8px 18px;font-size:11px;}}"
                 f"QMenu::item:selected{{background:{PANEL};color:{TEXT};}}")
-            m.addAction("Ajouter des fichiers…", self._browse_files)
-            m.addAction("Ajouter un dossier…", self._browse_folder)
+            m.addAction(T("Ajouter des fichiers…"), self._browse_files)
+            m.addAction(T("Ajouter un dossier…"), self._browse_folder)
             m.exec(e.globalPos())
         else:
             super().contextMenuEvent(e)
@@ -1743,24 +1937,15 @@ class Tagr(QMainWindow):
         bl=QHBoxLayout(bar); bl.setContentsMargins(16,0,16,0)
         # Layout barre : [lang_btn] [stretch] [logo] [stretch]
         # stretch gauche = stretch droit pour centrer le logo
-        lang_btn = QPushButton(T("lang_toggle"))
-        lang_btn.setFixedSize(60, 26)
-        lang_btn.setStyleSheet(
-            f"QPushButton{{background:{PANEL};color:{TEXTM};border:1px solid {BORDER};"
-            f"border-radius:4px;font-size:10px;padding:0 8px;}}"
-            f"QPushButton:hover{{background:{PANEL2};color:{TEXT};}}")
-        lang_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        lang_btn.clicked.connect(self._toggle_lang)
+        self._lang_combo = None  # sera créé dans la colonne gauche
         logo=QLabel("Tagr")
         logo.setStyleSheet(f"color:{TEXT};font-size:22px;font-weight:bold;letter-spacing:1px;")
         logo.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        bl.addWidget(lang_btn)
+        
         bl.addStretch(1)
         bl.addWidget(logo)
         bl.addStretch(1)
-        # Spacer droit de même largeur que lang_btn pour garder le logo centré
-        spacer = QWidget(); spacer.setFixedSize(60, 26)
-        bl.addWidget(spacer)
+
         self.album_btn = None
         main.addWidget(bar)
 
@@ -1812,7 +1997,7 @@ class Tagr(QMainWindow):
 
         dl_round = QPushButton("↓")
         dl_round.setFixedSize(28, 28)
-        dl_round.setToolTip("Télécharger depuis URL (YouTube, SoundCloud…)")
+        dl_round.setToolTip(T("dl_tooltip"))
         dl_round.setStyleSheet(
             f"QPushButton{{background:{PANEL};color:{TEXTM};border:1px solid {BORDER};"
             f"border-radius:14px;font-size:14px;font-weight:bold;padding:0;}}"
@@ -1855,6 +2040,26 @@ class Tagr(QMainWindow):
         # Double-clic sur la zone scrollable pour ajouter
         self.list_container.mouseDoubleClickEvent = lambda e: self._browse_files()
 
+        # Barre langue en bas de colonne gauche
+        lang_bar = QFrame(); lang_bar.setFixedHeight(40)
+        lang_bar.setStyleSheet(f"background:{BG2};border-top:1px solid {BORDER};")
+        lb = QHBoxLayout(lang_bar); lb.setContentsMargins(12,0,12,0); lb.setSpacing(8)
+        globe = QLabel("🌐︎")
+        globe.setStyleSheet(f"color:{ACCENT};font-size:14px;background:transparent;")
+        from PyQt6.QtWidgets import QComboBox as _LC
+        lang_combo = _LC()
+        lang_combo.addItems(["Français", "English"])
+        lang_combo.setCurrentIndex(0 if _LANG == "fr" else 1)
+        lang_combo.setFixedHeight(24)
+        lang_combo.setStyleSheet(
+            f"QComboBox{{background:transparent;color:{TEXTM};border:none;"
+            f"font-size:10px;padding:0 4px;}}"
+            f"QComboBox::drop-down{{border:none;width:12px;}}"
+            f"QComboBox QAbstractItemView{{background:{PANEL2};color:{TEXT};border:1px solid {BORDER};}}")
+        lang_combo.currentIndexChanged.connect(self._switch_lang)
+        self._lang_combo = lang_combo
+        lb.addWidget(globe); lb.addWidget(lang_combo); lb.addStretch()
+        lv.addWidget(lang_bar)
         body.addWidget(self.list_widget)
 
         # ── Colonne droite ──
@@ -1865,11 +2070,10 @@ class Tagr(QMainWindow):
     def _build_empty(self):
         w=QWidget(); w.setStyleSheet(f"background:{BG};")
         v=QVBoxLayout(w); v.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        v.addWidget(QLabel("Sélectionne un fichier",styleSheet=f"color:{TEXTD};font-size:14px;"),
-                    alignment=Qt.AlignmentFlag.AlignCenter)
-        v.addWidget(QLabel("↑ ↓ pour naviguer · Cmd+S pour sauvegarder · Entrée pour sauvegarder",
-                           styleSheet=f"color:{TEXTD};font-size:10px;"),
-                    alignment=Qt.AlignmentFlag.AlignCenter)
+        self._empty_title = QLabel(T("empty_title"), styleSheet=f"color:{TEXTD};font-size:14px;")
+        self._empty_hint = QLabel(T("empty_hint"), styleSheet=f"color:{TEXTD};font-size:10px;")
+        v.addWidget(self._empty_title, alignment=Qt.AlignmentFlag.AlignCenter)
+        v.addWidget(self._empty_hint, alignment=Qt.AlignmentFlag.AlignCenter)
         self.right.empty=w; self.right.addWidget(w)
 
     def _build_editor(self):
@@ -1888,12 +2092,12 @@ class Tagr(QMainWindow):
         self.cover_lbl=CoverLabel()
         self.cover_lbl.clicked.connect(self._browse_cover)
         self.cover_lbl.image_dropped.connect(self._on_image_dropped)
-        sub=QLabel(T("Cliquer ou glisser une image"))
+        sub=QLabel(T("Cliquer ou glisser une image")); self._cover_hint=sub
         sub.setStyleSheet(f"color:{TEXTD};font-size:9px;"); sub.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.cover_info=QLabel("")
         self.cover_info.setStyleSheet(f"color:{TEXTD};font-size:8px;"); self.cover_info.setAlignment(Qt.AlignmentFlag.AlignCenter)
         # Bouton recadrer
-        crop_btn=QPushButton(T("Recadrer"))
+        crop_btn=QPushButton(T("Recadrer")); self._crop_btn=crop_btn
         crop_btn.setStyleSheet(
             f"QPushButton{{background:{PANEL};color:{TEXTM};border:1px solid {BORDER};"
             f"border-radius:4px;font-size:9px;padding:4px 10px;}}"
@@ -1910,6 +2114,7 @@ class Tagr(QMainWindow):
             lbl=QLabel(txt)
             lbl.setStyleSheet(f"color:{TEXTD};font-size:8px;font-weight:bold;margin-top:7px;background:transparent;")
             bc.addWidget(lbl)
+            return lbl
 
         def abtn(txt, fn, role="secondary"):
             b=QPushButton(txt)
@@ -1923,16 +2128,18 @@ class Tagr(QMainWindow):
                                 f"QPushButton:hover{{background:{PANEL2};color:{TEXT};border:1px solid {BORDER};}}")
             b.setCursor(Qt.CursorShape.PointingHandCursor); b.clicked.connect(fn); bc.addWidget(b); return b
 
-        section(T("POCHETTE"))
-        abtn(T("Recherche de pochette"), self._search_cover_smart)
-        abtn(T("Exporter la pochette"), self._export_cover)
+        self._lbl_section_pochette = section(T("POCHETTE"))
+        self._btn_search_cover = abtn(T("Recherche de pochette"), self._search_cover_smart)
+        self._btn_export_cover = abtn(T("Exporter la pochette"), self._export_cover)
 
-        section(T("LECTURE"))
+        self._lbl_section_lecture = section(T("LECTURE"))
         self.play_btn=abtn(T("Ecouter"), self._toggle_play)
+        self._btn_listen = self.play_btn
 
-        section(T("OUTILS AUDIO"))
+        self._lbl_section_outils = section(T("OUTILS AUDIO"))
         # Menu déroulant pour les outils audio
         self._audio_tools_btn=QPushButton(T("Outils audio…"))
+        self._btn_audio_tools = self._audio_tools_btn
         self._audio_tools_btn.setStyleSheet(
             f"QPushButton{{background:{PANEL};color:{TEXTM};border:1px solid transparent;"
             f"padding:9px 14px;font-size:11px;text-align:left;border-radius:4px;}}"
@@ -1964,25 +2171,26 @@ class Tagr(QMainWindow):
         ql.addWidget(self.qlbl_size)
         v.addWidget(self.quality_frame)
 
-        self.spotify_status_lbl = QLabel("Statut Spotify")
+        self.spotify_status_lbl = QLabel(T("Statut Spotify"))
         self.spotify_status_lbl.setStyleSheet(f"background:{PANEL};color:{TEXTD};border:1px solid {BORDER};"
                                               f"border-radius:5px;padding:8px 12px;font-size:10px;margin-top:8px;")
         v.addWidget(self.spotify_status_lbl)
 
         # Champs
-        def field(label,attr):
-            lbl=QLabel(label); lbl.setStyleSheet(f"color:{TEXTD};font-size:9px;margin-top:12px;")
+        def field(label_key, attr, label_attr):
+            lbl=QLabel(T(label_key)); lbl.setStyleSheet(f"color:{TEXTD};font-size:9px;margin-top:12px;")
             e=QLineEdit()
             e.setStyleSheet(f"background:{FIELDBG};color:{TEXT};border:1px solid {BORDER};"
                             f"border-radius:4px;padding:9px 10px;font-size:13px;"
                             f"selection-background-color:{ACCENT};selection-color:#000;")
             e.textChanged.connect(self._mark_dirty); setattr(self,attr,e)
+            setattr(self,label_attr,lbl)
             v.addWidget(lbl); v.addWidget(e)
 
         v.addSpacing(8)
-        field("TITRE",   "field_title")
-        field("ARTISTE", "field_artist")
-        field("ALBUM",   "field_album")
+        field("TITRE",   "field_title",  "_lbl_titre")
+        field("ARTISTE", "field_artist", "_lbl_artiste")
+        field("ALBUM",   "field_album",  "_lbl_album")
 
         # Champs cachés pour compatibilité (non affichés mais utilisés en lecture/écriture)
         for attr in ["field_track","field_year","field_genre","field_bpm"]:
@@ -1991,7 +2199,7 @@ class Tagr(QMainWindow):
 
         # Bouton sauvegarder pleine largeur
         bot_wrap=QVBoxLayout(); bot_wrap.setContentsMargins(0,20,0,0)
-        save=QPushButton(T("Sauvegarder"))
+        save=QPushButton(T("Sauvegarder")); self._save_btn=save
         save.setStyleSheet(f"QPushButton{{background:{ACCENT};color:#000;font-weight:bold;font-size:12px;"
                            f"border:none;padding:12px;border-radius:5px;}}"
                            f"QPushButton:hover{{background:{ACCENT2};}}")
@@ -2125,7 +2333,7 @@ class Tagr(QMainWindow):
             try: self.cover_info.setText("")
             except: pass
         self.right.show_editor(); self.status_lbl.setText("")
-        self.play_btn.setText("Ecouter")
+        self.play_btn.setText(T("Ecouter"))
         # Qualité audio
         self._update_quality(path)
         self._update_spotify_status()
@@ -2207,11 +2415,11 @@ class Tagr(QMainWindow):
         path = self.files[self.current_index]
         issues = self._spotify_issues(self._current_editor_tags(), path)
         if issues:
-            self.spotify_status_lbl.setText("À vérifier Spotify : " + ", ".join(issues))
+            self.spotify_status_lbl.setText(T("À vérifier Spotify : ") + ", ".join(issues))
             self.spotify_status_lbl.setStyleSheet(f"background:{PANEL};color:{WARN};border:1px solid {BORDER};"
                                                   f"border-radius:5px;padding:8px 12px;font-size:10px;margin-top:8px;")
         else:
-            self.spotify_status_lbl.setText("Prêt Spotify")
+            self.spotify_status_lbl.setText(T("Prêt Spotify"))
             self.spotify_status_lbl.setStyleSheet(f"background:{SELBG};color:{ACCENT};border:1px solid {ACCENT};"
                                                   f"border-radius:5px;padding:8px 12px;font-size:10px;font-weight:bold;margin-top:8px;")
 
@@ -2340,16 +2548,16 @@ class Tagr(QMainWindow):
     def _start_play(self):
         if self.current_index<0: return
         self._play_proc=subprocess.Popen(["afplay",self.files[self.current_index]])
-        self.play_btn.setText("Stop")
+        self.play_btn.setText(T("Stop"))
         def watch():
             self._play_proc.wait()
-            QTimer.singleShot(0,lambda:self.play_btn.setText("Ecouter"))
+            QTimer.singleShot(0,lambda:self.play_btn.setText(T("Ecouter")))
         threading.Thread(target=watch,daemon=True).start()
 
     def _stop_play(self):
         if self._play_proc and self._play_proc.poll() is None: self._play_proc.terminate()
         self._play_proc=None
-        try: self.play_btn.setText("Ecouter")
+        try: self.play_btn.setText(T("Ecouter"))
         except: pass
 
     # ── Sauvegarder ───────────────────────────────────────────────────────────
@@ -2368,13 +2576,13 @@ class Tagr(QMainWindow):
         # Dialog : écraser ou créer nouveau fichier
         from PyQt6.QtWidgets import QMessageBox
         msg = QMessageBox(self)
-        msg.setWindowTitle("Sauvegarder")
+        msg.setWindowTitle(T("Sauvegarder"))
         msg.setText(T("Comment sauvegarder les modifications ?"))
         msg.setInformativeText(os.path.basename(path))
         msg.setStyleSheet(f"background:{BG2};color:{TEXT};")
         overwrite_btn = msg.addButton(T("Écraser le fichier"), QMessageBox.ButtonRole.AcceptRole)
         new_btn       = msg.addButton(T("Créer un nouveau fichier"), QMessageBox.ButtonRole.ActionRole)
-        cancel_btn    = msg.addButton("Annuler", QMessageBox.ButtonRole.RejectRole)
+        cancel_btn    = msg.addButton(T("Annuler"), QMessageBox.ButtonRole.RejectRole)
         msg.exec()
         clicked = msg.clickedButton()
         if clicked == cancel_btn: return False
@@ -2480,7 +2688,7 @@ class Tagr(QMainWindow):
                 duration = MP4(path).info.length
         except: pass
         if not duration:
-            self._flash("Impossible de lire la durée du fichier", err=True); return
+            self._flash(T("duration_error"), err=True); return
         TrimDialog(self, path, duration).exec()
 
     def keyPressEvent(self, event):
@@ -2509,13 +2717,13 @@ class Tagr(QMainWindow):
         if dirty:
             from PyQt6.QtWidgets import QMessageBox
             msg = QMessageBox(self)
-            msg.setWindowTitle("Modifications non sauvegardées")
-            msg.setText(f"{len(dirty)} fichier(s) non sauvegardé(s).")
-            msg.setInformativeText("Sauvegarder avant de quitter ?")
+            msg.setWindowTitle(T("Modifications non sauvegardées"))
+            msg.setText(T("n_unsaved").replace("{n}", str(len(dirty))))
+            msg.setInformativeText(T("save_before_quit"))
             msg.setStyleSheet(f"background:{BG2};color:{TEXT};")
-            save_btn   = msg.addButton("Sauvegarder et quitter", QMessageBox.ButtonRole.AcceptRole)
-            nosave_btn = msg.addButton("Quitter sans sauvegarder", QMessageBox.ButtonRole.DestructiveRole)
-            cancel_btn = msg.addButton("Annuler", QMessageBox.ButtonRole.RejectRole)
+            save_btn   = msg.addButton(T("Sauvegarder et quitter"), QMessageBox.ButtonRole.AcceptRole)
+            nosave_btn = msg.addButton(T("Quitter sans sauvegarder"), QMessageBox.ButtonRole.DestructiveRole)
+            cancel_btn = msg.addButton(T("Annuler"), QMessageBox.ButtonRole.RejectRole)
             msg.exec()
             clicked = msg.clickedButton()
             if clicked == cancel_btn:
@@ -2579,13 +2787,13 @@ class Tagr(QMainWindow):
         issues = []
         ext = os.path.splitext(path)[1].lower()
         if ext != ".mp3":
-            issues.append("format non MP3")
+            issues.append(T("not_mp3"))
         if not clean_text(tags.get("title")):
-            issues.append("titre manquant")
+            issues.append(T("missing_title"))
         if not clean_text(tags.get("artist")):
-            issues.append("artiste manquant")
+            issues.append(T("missing_artist"))
         if not tags.get("cover"):
-            issues.append("pochette manquante")
+            issues.append(T("missing_cover"))
         return issues
 
     def _spotify_audit(self):
@@ -2607,10 +2815,10 @@ class Tagr(QMainWindow):
         for row, tags in ready[:]:
             if row.path in duplicate_paths:
                 ready.remove((row, tags))
-                review.append((row, tags, ["doublon possible"]))
+                review.append((row, tags, [T("possible_duplicate")]))
         for i, (row, tags, issues) in enumerate(review):
-            if row.path in duplicate_paths and "doublon possible" not in issues:
-                review[i] = (row, tags, issues + ["doublon possible"])
+            if row.path in duplicate_paths and T("possible_duplicate") not in issues:
+                review[i] = (row, tags, issues + [T("possible_duplicate")])
         return ready, review
 
     def _select_path(self, path):
@@ -2636,7 +2844,7 @@ class Tagr(QMainWindow):
         if row:
             self._on_row_select(row)
         else:
-            self._flash("Aucun problème Spotify restant")
+            self._flash(T("Aucun problème Spotify restant"))
 
     def _show_spotify_control(self):
         if not self.rows:
@@ -2644,11 +2852,11 @@ class Tagr(QMainWindow):
         from PyQt6.QtWidgets import QDialog
         ready, review = self._spotify_audit()
         d = QDialog(self)
-        d.setWindowTitle("Contrôle Spotify")
+        d.setWindowTitle(T("Contrôle Spotify"))
         d.setStyleSheet(f"background:{BG2};color:{TEXT};")
         d.setMinimumSize(620, 460)
         v = QVBoxLayout(d); v.setContentsMargins(20,18,20,18); v.setSpacing(10)
-        title = QLabel(f"{len(ready)} prêt(s) · {len(review)} à vérifier")
+        title = QLabel(T("spotify_ready_review").replace("{ready}", str(len(ready))).replace("{review}", str(len(review))))
         title.setStyleSheet(f"color:{TEXT};font-size:15px;font-weight:bold;")
         v.addWidget(title)
         scroll = QScrollArea(); scroll.setWidgetResizable(True)
@@ -2657,7 +2865,7 @@ class Tagr(QMainWindow):
         rows = QVBoxLayout(cont); rows.setContentsMargins(0,0,0,0); rows.setSpacing(1)
         entries = [(row, "OK", spotify_filename(tags, row.path), ACCENT)
                    for row, tags in ready]
-        entries += [(row, "A vérifier", f"{os.path.basename(row.path)} · {', '.join(issues)}", WARN)
+        entries += [(row, T("spotify_check"), f"{os.path.basename(row.path)} · {', '.join(issues)}", WARN)
                     for row, tags, issues in review]
         for row, status, detail, color in entries:
             btn = QPushButton(f"{status}  {detail}")
@@ -2668,10 +2876,10 @@ class Tagr(QMainWindow):
         rows.addStretch()
         scroll.setWidget(cont); v.addWidget(scroll, 1)
         brow = QHBoxLayout()
-        next_btn = QPushButton("Aller au prochain problème")
+        next_btn = QPushButton(T("Aller au prochain problème"))
         next_btn.setStyleSheet(f"background:{ACCENT};color:#000;font-weight:bold;border:none;padding:8px 14px;border-radius:4px;")
-        next_btn.clicked.connect(lambda: (d.accept(), self._select_path(self._next_spotify_issue().path) if self._next_spotify_issue() else self._flash("Aucun problème Spotify restant")))
-        close = QPushButton("Fermer")
+        next_btn.clicked.connect(lambda: (d.accept(), self._select_path(self._next_spotify_issue().path) if self._next_spotify_issue() else self._flash(T("Aucun problème Spotify restant"))))
+        close = QPushButton(T("Fermer"))
         close.setStyleSheet(f"background:{PANEL};color:{TEXTM};border:none;padding:8px 14px;border-radius:4px;")
         close.clicked.connect(d.accept)
         brow.addStretch(); brow.addWidget(next_btn); brow.addWidget(close)
@@ -2689,24 +2897,24 @@ class Tagr(QMainWindow):
             "year": self.field_year.text().strip(),
         }
         d = QDialog(self)
-        d.setWindowTitle("Champs en lot")
+        d.setWindowTitle(T("Champs en lot"))
         d.setStyleSheet(f"background:{BG2};color:{TEXT};")
         d.setMinimumWidth(360)
         v = QVBoxLayout(d); v.setContentsMargins(20,18,20,18); v.setSpacing(10)
-        v.addWidget(QLabel("Appliquer depuis le morceau sélectionné :", styleSheet=f"color:{TEXT};font-size:12px;"))
+        v.addWidget(QLabel(T("apply_from_selected"), styleSheet=f"color:{TEXT};font-size:12px;"))
         checks = []
-        for key, label in [("artist","Artiste"),("album","Album"),("genre","Genre"),("year","Année")]:
+        for key, label in [("artist","Artiste"),("album","Album"),("genre","Genre"),("year",T("Année"))]:
             chk = QCheckBox(f"{label} : {source[key] or '(vide)'}")
             chk.setEnabled(bool(source[key]))
             chk.setStyleSheet(f"color:{TEXTM};font-size:10px;")
             v.addWidget(chk); checks.append((key, chk))
-        number_chk = QCheckBox("Numéroter les pistes dans l'ordre de la liste")
+        number_chk = QCheckBox(T("num_tracks_hint"))
         number_chk.setStyleSheet(f"color:{TEXTM};font-size:10px;")
         v.addWidget(number_chk)
         brow = QHBoxLayout()
-        ok = QPushButton("Appliquer")
+        ok = QPushButton(T("Appliquer"))
         ok.setStyleSheet(f"background:{ACCENT};color:#000;font-weight:bold;border:none;padding:8px 16px;border-radius:4px;")
-        cancel = QPushButton("Annuler")
+        cancel = QPushButton(T("Annuler"))
         cancel.setStyleSheet(f"background:{PANEL};color:{TEXTM};border:none;padding:8px 14px;border-radius:4px;")
         ok.clicked.connect(d.accept); cancel.clicked.connect(d.reject)
         brow.addStretch(); brow.addWidget(cancel); brow.addWidget(ok)
@@ -2750,12 +2958,12 @@ class Tagr(QMainWindow):
         if any(r._dirty for r in self.rows):
             from PyQt6.QtWidgets import QMessageBox
             msg = QMessageBox(self)
-            msg.setWindowTitle("Modifications non sauvegardées")
-            msg.setText("Sauvegarder les tags avant l'export Spotify ?")
-            msg.setInformativeText("L'export copie les fichiers tels qu'ils sont sur disque.")
+            msg.setWindowTitle(T("Modifications non sauvegardées"))
+            msg.setText(T("spotify_save_tags"))
+            msg.setInformativeText(T("export_note"))
             msg.setStyleSheet(f"background:{BG2};color:{TEXT};")
-            save_btn = msg.addButton("Sauvegarder", QMessageBox.ButtonRole.AcceptRole)
-            cancel_btn = msg.addButton("Annuler", QMessageBox.ButtonRole.RejectRole)
+            save_btn = msg.addButton(T("Sauvegarder"), QMessageBox.ButtonRole.AcceptRole)
+            cancel_btn = msg.addButton(T("Annuler"), QMessageBox.ButtonRole.RejectRole)
             msg.exec()
             if msg.clickedButton() == cancel_btn:
                 return
@@ -2766,7 +2974,7 @@ class Tagr(QMainWindow):
             "spotify_export_folder",
             str(Path.home() / "Music" / "Tagr Spotify Ready"))
         out_dir = QFileDialog.getExistingDirectory(
-            self, "Choisir le dossier Spotify Ready", default_dir)
+            self, T("Choisir le dossier Spotify Ready"), default_dir)
         if not out_dir:
             return
         self._cfg["spotify_export_folder"] = out_dir
@@ -2792,13 +3000,13 @@ class Tagr(QMainWindow):
 
         from PyQt6.QtWidgets import QMessageBox
         msg = QMessageBox(self)
-        msg.setWindowTitle("Export Spotify Ready")
-        msg.setText("Créer les copies prêtes pour Spotify ?")
+        msg.setWindowTitle(T("Export Spotify Ready"))
+        msg.setText(T("spotify_confirm"))
         msg.setInformativeText("\n".join(lines))
         msg.setStyleSheet(f"background:{BG2};color:{TEXT};")
-        export_btn = msg.addButton("Exporter les prêts", QMessageBox.ButtonRole.AcceptRole)
-        all_btn = msg.addButton("Exporter tout", QMessageBox.ButtonRole.ActionRole)
-        cancel_btn = msg.addButton("Annuler", QMessageBox.ButtonRole.RejectRole)
+        export_btn = msg.addButton(T("Exporter les prêts"), QMessageBox.ButtonRole.AcceptRole)
+        all_btn = msg.addButton(T("Exporter tout"), QMessageBox.ButtonRole.ActionRole)
+        cancel_btn = msg.addButton(T("Annuler"), QMessageBox.ButtonRole.RejectRole)
         msg.exec()
         clicked = msg.clickedButton()
         if clicked == cancel_btn:
@@ -2848,12 +3056,12 @@ class Tagr(QMainWindow):
         if not row._dirty: return True
         from PyQt6.QtWidgets import QMessageBox
         msg = QMessageBox(self)
-        msg.setWindowTitle("Modifications non sauvegardées")
-        msg.setText(f"Fichier modifié : {os.path.basename(self.files[self.current_index])}")
+        msg.setWindowTitle(T("Modifications non sauvegardées"))
+        msg.setText(T("file_modified").replace("{name}", os.path.basename(self.files[self.current_index])))
         msg.setStyleSheet(f"background:{BG2};color:{TEXT};")
-        save_btn   = msg.addButton("Sauvegarder", QMessageBox.ButtonRole.AcceptRole)
-        skip_btn   = msg.addButton("Ignorer",     QMessageBox.ButtonRole.DestructiveRole)
-        cancel_btn = msg.addButton("Annuler",     QMessageBox.ButtonRole.RejectRole)
+        save_btn   = msg.addButton(T("Sauvegarder"), QMessageBox.ButtonRole.AcceptRole)
+        skip_btn   = msg.addButton(T("Ignorer"),     QMessageBox.ButtonRole.DestructiveRole)
+        cancel_btn = msg.addButton(T("Annuler"),     QMessageBox.ButtonRole.RejectRole)
         msg.exec()
         clicked = msg.clickedButton()
         if clicked == cancel_btn: return False
@@ -2898,21 +3106,21 @@ class Tagr(QMainWindow):
         if not ff: self._flash("ffmpeg introuvable", err=True); return
 
         from PyQt6.QtWidgets import QDialog, QCheckBox, QProgressDialog
-        d = QDialog(self); d.setWindowTitle("Normaliser le volume")
+        d = QDialog(self); d.setWindowTitle(T("Normaliser le volume"))
         d.setStyleSheet(f"background:{BG2};color:{TEXT};"); d.setMinimumWidth(360)
         v = QVBoxLayout(d); v.setContentsMargins(20,20,20,20); v.setSpacing(10)
-        v.addWidget(QLabel(f"Fichier : {os.path.basename(path)}",
+        v.addWidget(QLabel(T("file_label").replace("{name}", os.path.basename(path)),
                            styleSheet=f"color:{TEXTD};font-size:10px;"))
-        v.addWidget(QLabel("Normalisation a -14 LUFS (standard Spotify / Apple Music)",
+        v.addWidget(QLabel(T("Normalisation a -14 LUFS (standard Spotify / Apple Music)"),
                            styleSheet=f"color:{TEXT};font-size:11px;"))
-        overwrite_chk = QCheckBox("Ecraser le fichier original")
+        overwrite_chk = QCheckBox(T("overwrite_original"))
         overwrite_chk.setStyleSheet(f"color:{TEXTM};font-size:10px;")
         v.addWidget(overwrite_chk)
         brow = QHBoxLayout()
-        ok = QPushButton("Normaliser")
+        ok = QPushButton(T("Normaliser"))
         ok.setStyleSheet(f"background:{ACCENT};color:#000;font-weight:bold;border:none;padding:9px 20px;border-radius:4px;")
         ok.setCursor(Qt.CursorShape.PointingHandCursor)
-        cancel = QPushButton("Annuler")
+        cancel = QPushButton(T("Annuler"))
         cancel.setStyleSheet(f"background:{PANEL};color:{TEXTM};border:none;padding:9px 16px;border-radius:4px;")
         cancel.setCursor(Qt.CursorShape.PointingHandCursor)
         ok.clicked.connect(d.accept); cancel.clicked.connect(d.reject)
@@ -2986,26 +3194,26 @@ class Tagr(QMainWindow):
         ext_cur = os.path.splitext(path)[1].lstrip(".").upper()
         fmts = [f for f in ["MP3", "FLAC", "M4A", "AAC", "WAV"] if f != ext_cur]
         d = QDialog(self)
-        d.setWindowTitle("Convertir le format")
+        d.setWindowTitle(T("Convertir le format"))
         d.setStyleSheet(f"background:{BG2};color:{TEXT};")
         v = QVBoxLayout(d); v.setContentsMargins(20,20,20,20); v.setSpacing(12)
-        lbl_f = QLabel(f"Fichier : {os.path.basename(path)}")
+        lbl_f = QLabel(T("file_label").replace("{name}", os.path.basename(path)))
         lbl_f.setStyleSheet(f"color:{TEXTD};font-size:10px;")
         v.addWidget(lbl_f)
-        v.addWidget(QLabel("Format cible :", styleSheet=f"color:{TEXT};font-size:11px;"))
+        v.addWidget(QLabel(T("target_format"), styleSheet=f"color:{TEXT};font-size:11px;"))
         combo = QComboBox(); combo.addItems(fmts)
         combo.setStyleSheet(f"background:{FIELDBG};color:{TEXT};border:1px solid {BORDER};"
                             f"border-radius:4px;padding:6px;font-size:12px;")
         v.addWidget(combo)
-        lbl_note = QLabel("MP3 320 kbps. Le fichier original est conserve.")
+        lbl_note = QLabel(T("mp3_info"))
         lbl_note.setStyleSheet(f"color:{TEXTD};font-size:9px;")
         v.addWidget(lbl_note)
         brow = QHBoxLayout()
-        ok = QPushButton("Convertir")
+        ok = QPushButton(T("Convertir"))
         ok.setStyleSheet(f"background:{ACCENT};color:#000;font-weight:bold;border:none;"
                          f"padding:9px 20px;border-radius:4px;")
         ok.setCursor(Qt.CursorShape.PointingHandCursor)
-        cancel = QPushButton("Annuler")
+        cancel = QPushButton(T("Annuler"))
         cancel.setStyleSheet(f"background:{PANEL};color:{TEXTM};border:none;"
                              f"padding:9px 16px;border-radius:4px;")
         cancel.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -3066,27 +3274,27 @@ class Tagr(QMainWindow):
     def _batch_rename(self):
         from PyQt6.QtWidgets import QDialog, QLineEdit, QCheckBox
         d = QDialog(self)
-        d.setWindowTitle("Renommer par lot")
+        d.setWindowTitle(T("Renommer par lot"))
         d.setStyleSheet(f"background:{BG2};color:{TEXT};")
         v = QVBoxLayout(d); v.setContentsMargins(20,20,20,20); v.setSpacing(10)
-        v.addWidget(QLabel("Pattern de renommage :", styleSheet=f"color:{TEXT};font-size:11px;"))
-        pattern_edit = QLineEdit("{artiste} - {titre}")
+        v.addWidget(QLabel(T("rename_pattern"), styleSheet=f"color:{TEXT};font-size:11px;"))
+        pattern_edit = QLineEdit("{artist} - {title}" if _LANG == "en" else "{artiste} - {titre}")
         pattern_edit.setStyleSheet(f"background:{FIELDBG};color:{TEXT};border:1px solid {BORDER};"
                                    f"border-radius:4px;padding:8px;font-size:12px;")
         v.addWidget(pattern_edit)
-        hint = QLabel("Variables : {titre}  {artiste}  {album}  {piste}  {annee}")
+        hint = QLabel(T("rename_variables"))
         hint.setStyleSheet(f"color:{TEXTD};font-size:9px;")
         v.addWidget(hint)
-        all_chk = QCheckBox("Appliquer a tous les fichiers de la liste")
+        all_chk = QCheckBox(T("apply_all_files"))
         all_chk.setChecked(True)
         all_chk.setStyleSheet(f"color:{TEXTM};font-size:10px;")
         v.addWidget(all_chk)
         brow = QHBoxLayout()
-        ok = QPushButton("Renommer")
+        ok = QPushButton(T("Renommer"))
         ok.setStyleSheet(f"background:{ACCENT};color:#000;font-weight:bold;border:none;"
                          f"padding:9px 20px;border-radius:4px;")
         ok.setCursor(Qt.CursorShape.PointingHandCursor)
-        cancel = QPushButton("Annuler")
+        cancel = QPushButton(T("Annuler"))
         cancel.setStyleSheet(f"background:{PANEL};color:{TEXTM};border:none;"
                              f"padding:9px 16px;border-radius:4px;")
         cancel.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -3128,12 +3336,12 @@ class Tagr(QMainWindow):
         if len(preview) > 12:
             lines.append(f"... +{len(preview)-12} autres")
         msg = QMessageBox(self)
-        msg.setWindowTitle("Aperçu du renommage")
-        msg.setText(f"{len(preview)} renommage(s) prévu(s)")
+        msg.setWindowTitle(T("Aperçu du renommage"))
+        msg.setText(T("n_renames").replace("{n}", str(len(preview))))
         msg.setInformativeText("\n".join(lines))
         msg.setStyleSheet(f"background:{BG2};color:{TEXT};")
-        apply_btn = msg.addButton("Appliquer", QMessageBox.ButtonRole.AcceptRole)
-        cancel_btn = msg.addButton("Annuler", QMessageBox.ButtonRole.RejectRole)
+        apply_btn = msg.addButton(T("Appliquer"), QMessageBox.ButtonRole.AcceptRole)
+        cancel_btn = msg.addButton(T("Annuler"), QMessageBox.ButtonRole.RejectRole)
         msg.exec()
         if msg.clickedButton() == cancel_btn:
             return
@@ -3171,25 +3379,25 @@ class Tagr(QMainWindow):
     def _show_shortcuts(self):
         from PyQt6.QtWidgets import QDialog
         d = QDialog(self)
-        d.setWindowTitle("Raccourcis clavier")
+        d.setWindowTitle(T("Raccourcis clavier"))
         d.setStyleSheet(f"background:{BG2};color:{TEXT};")
         d.setMinimumWidth(380)
         v = QVBoxLayout(d); v.setContentsMargins(24,20,24,20); v.setSpacing(4)
-        title = QLabel("Raccourcis clavier")
+        title = QLabel(T("Raccourcis clavier"))
         title.setStyleSheet(f"font-size:15px;font-weight:bold;color:{TEXT};")
         v.addWidget(title)
         sep = QFrame(); sep.setFrameShape(QFrame.Shape.HLine)
         sep.setStyleSheet(f"color:{BORDER};margin:8px 0;"); v.addWidget(sep)
         shortcuts = [
-            ("Cmd+S",           "Sauvegarder"),
-            ("Cmd+Shift+S",     "Tout sauvegarder"),
+            ("Cmd+S",           T("Sauvegarder")),
+            ("Cmd+Shift+S",     T("Tout sauvegarder")),
             ("Cmd+Z",           "Annuler les modifications"),
-            ("Outils audio…",   "Couper, Normaliser, Convertir, Renommer"),
-            ("Bouton Spotify",   "Exporter les copies prêtes pour Spotify"),
-            ("Entree",          "Sauvegarder"),
+            (T("Outils audio…"), T("shortcuts_audio_tools")),
+            ("Spotify",         T("shortcuts_spotify_export")),
+            ("Entree",          T("Sauvegarder")),
             ("Espace",          "Lecture / Pause"),
-            ("Haut / Bas",      "Fichier precedent / suivant"),
-            ("Suppr / Retour",  "Retirer le fichier de la liste"),
+            ("Haut / Bas",      T("file_previous_next")),
+            ("Suppr / Retour",  T("remove_current_file")),
         ]
         for keys, desc in shortcuts:
             row = QHBoxLayout(); row.setSpacing(12)
@@ -3202,7 +3410,7 @@ class Tagr(QMainWindow):
             row.addWidget(k); row.addWidget(d_lbl); row.addStretch()
             w = QWidget(); w.setLayout(row); v.addWidget(w)
         v.addSpacing(8)
-        close = QPushButton("Fermer")
+        close = QPushButton(T("Fermer"))
         close.setStyleSheet(f"background:{PANEL};color:{TEXTM};border:none;"
                             f"padding:8px 20px;border-radius:4px;")
         close.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -3235,7 +3443,7 @@ class Tagr(QMainWindow):
             self._flash("Aucun doublon titre/artiste détecté"); return
         from PyQt6.QtWidgets import QDialog
         d = QDialog(self)
-        d.setWindowTitle("Doublons possibles")
+        d.setWindowTitle(T("Doublons possibles"))
         d.setStyleSheet(f"background:{BG2};color:{TEXT};")
         d.setMinimumSize(560, 380)
         v = QVBoxLayout(d); v.setContentsMargins(20,18,20,18); v.setSpacing(10)
@@ -3256,7 +3464,7 @@ class Tagr(QMainWindow):
                 btn.clicked.connect(lambda _, p=row.path, dia=d: (dia.accept(), self._select_path(p)))
                 rows_l.addWidget(btn)
         rows_l.addStretch(); scroll.setWidget(cont); v.addWidget(scroll, 1)
-        close = QPushButton("Fermer")
+        close = QPushButton(T("Fermer"))
         close.setStyleSheet(f"background:{PANEL};color:{TEXTM};border:none;padding:8px 14px;border-radius:4px;")
         close.clicked.connect(d.accept)
         v.addWidget(close, alignment=Qt.AlignmentFlag.AlignRight)
@@ -3474,12 +3682,12 @@ class Tagr(QMainWindow):
         if not self.files:
             self._flash("Aucun fichier dans la liste", err=True); return
         from PyQt6.QtWidgets import QDialog
-        d = QDialog(self); d.setWindowTitle("Statistiques")
+        d = QDialog(self); d.setWindowTitle(T("Statistiques"))
         d.setStyleSheet(f"background:{BG2};color:{TEXT};")
         d.setMinimumWidth(340)
         v = QVBoxLayout(d); v.setContentsMargins(24,20,24,20); v.setSpacing(6)
 
-        title = QLabel("Statistiques de la bibliotheque")
+        title = QLabel(T("Statistiques de la bibliotheque"))
         title.setStyleSheet(f"font-size:14px;font-weight:bold;color:{TEXT};")
         v.addWidget(title)
 
@@ -3515,25 +3723,25 @@ class Tagr(QMainWindow):
             row_l.addWidget(lbl); row_l.addStretch(); row_l.addWidget(val)
             v.addWidget(row_w)
 
-        stat_row("Fichiers total", len(self.files))
+        stat_row(T("stats_total_files"), len(self.files))
         h, m = divmod(int(total_dur), 3600)
         m, s = divmod(m, 60)
         stat_row("Duree totale", f"{h}h {m}m {s}s")
         stat_row("Artistes uniques", len(artists))
         stat_row("Albums uniques", len(albums))
-        stat_row("Sans pochette", missing_cover, ERROR if missing_cover else ACCENT)
-        stat_row("Tags incomplets", missing_tags, WARN if missing_tags else ACCENT)
+        stat_row(T("stats_no_cover"), missing_cover, ERROR if missing_cover else ACCENT)
+        stat_row(T("stats_missing_tags"), missing_tags, WARN if missing_tags else ACCENT)
 
         sep2 = QFrame(); sep2.setFrameShape(QFrame.Shape.HLine)
         sep2.setStyleSheet(f"color:{BORDER};"); v.addWidget(sep2)
-        v.addWidget(QLabel("Formats :", styleSheet=f"color:{TEXTD};font-size:9px;"))
+        v.addWidget(QLabel(T("stats_formats"), styleSheet=f"color:{TEXTD};font-size:9px;"))
         for fmt, count in sorted(formats.items()):
             stat_row(f"  {fmt}", count, TEXT)
-        v.addWidget(QLabel("Qualite :", styleSheet=f"color:{TEXTD};font-size:9px;"))
+        v.addWidget(QLabel(T("stats_quality"), styleSheet=f"color:{TEXTD};font-size:9px;"))
         for ql, count in sorted(qualities.items()):
             stat_row(f"  {ql}", count, TEXT)
 
-        close = QPushButton("Fermer")
+        close = QPushButton(T("Fermer"))
         close.setStyleSheet(f"background:{PANEL};color:{TEXTM};border:none;"
                             f"padding:8px 20px;border-radius:4px;")
         close.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -3546,10 +3754,10 @@ class Tagr(QMainWindow):
         self._album_view = not getattr(self, "_album_view", False)
         if self._album_view:
             self._build_album_view()
-            if self.album_btn: self.album_btn.setText("Vue liste")
+            if self.album_btn: self.album_btn.setText(T("Vue liste"))
         else:
             self._clear_album_groups()
-            if self.album_btn: self.album_btn.setText("Vue album")
+            if self.album_btn: self.album_btn.setText(T("Vue album"))
 
     def _build_album_view(self):
         self._clear_album_groups()
@@ -3599,12 +3807,12 @@ class Tagr(QMainWindow):
         if not ff: self._flash("ffmpeg introuvable", err=True); return
 
         from PyQt6.QtWidgets import QDialog
-        d = QDialog(self); d.setWindowTitle("Avant / Apres normalisation")
+        d = QDialog(self); d.setWindowTitle(T("Avant / Apres normalisation"))
         d.setStyleSheet(f"background:{BG2};color:{TEXT};")
         d.setMinimumWidth(360)
         v = QVBoxLayout(d); v.setContentsMargins(20,18,20,18); v.setSpacing(10)
 
-        v.addWidget(QLabel("Ecoute comparee : Original vs Normalise (-14 LUFS)",
+        v.addWidget(QLabel(T("preview_compare"),
                            styleSheet=f"font-size:13px;font-weight:bold;color:{TEXT};"))
         v.addWidget(QLabel(os.path.basename(path),
                            styleSheet=f"font-size:9px;color:{TEXTD};"))
@@ -3617,14 +3825,14 @@ class Tagr(QMainWindow):
             self._ba_proc = subprocess.Popen(
                 ["/usr/bin/afplay", path],
                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            status.setText("Lecture : Original")
+            status.setText(T("Lecture : Original"))
 
         def play_norm():
             _stop()
             import tempfile
             tmp = tempfile.mktemp(suffix=".mp3")
             self._ba_tmp = tmp
-            status.setText("Normalisation rapide en cours...")
+            status.setText(T("Normalisation rapide en cours..."))
             QApplication.processEvents()
             r = subprocess.run(
                 [ff, "-y", "-i", path, "-af", "loudnorm=I=-14:TP=-1:LRA=11",
@@ -3633,9 +3841,9 @@ class Tagr(QMainWindow):
                 self._ba_proc = subprocess.Popen(
                     ["/usr/bin/afplay", tmp],
                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                status.setText("Lecture : Normalise (-14 LUFS)")
+                status.setText(T("Lecture : Normalise (-14 LUFS)"))
             else:
-                status.setText("Erreur normalisation")
+                status.setText(T("Erreur normalisation"))
 
         def _stop():
             if self._ba_proc and self._ba_proc.poll() is None:
@@ -3643,25 +3851,25 @@ class Tagr(QMainWindow):
             self._ba_proc = None
 
         brow = QHBoxLayout(); brow.setSpacing(10)
-        btn_orig = QPushButton("▶  Original")
+        btn_orig = QPushButton(T("▶  Original"))
         btn_orig.setStyleSheet(f"background:{PANEL};color:{TEXT};border:none;"
                                f"padding:10px 18px;font-size:11px;border-radius:5px;")
         btn_orig.setCursor(Qt.CursorShape.PointingHandCursor)
         btn_orig.clicked.connect(play_original)
 
-        btn_norm = QPushButton("▶  Normalise")
+        btn_norm = QPushButton(T("▶  Normalise"))
         btn_norm.setStyleSheet(f"background:{ACCENT};color:#000;font-weight:bold;border:none;"
                                f"padding:10px 18px;font-size:11px;border-radius:5px;")
         btn_norm.setCursor(Qt.CursorShape.PointingHandCursor)
         btn_norm.clicked.connect(play_norm)
 
-        btn_stop = QPushButton("⏹  Stop")
+        btn_stop = QPushButton(T("⏹  Stop"))
         btn_stop.setStyleSheet(f"background:{PANEL};color:{TEXTM};border:none;"
                                f"padding:10px 14px;font-size:11px;border-radius:5px;")
         btn_stop.setCursor(Qt.CursorShape.PointingHandCursor)
         btn_stop.clicked.connect(_stop)
 
-        status = QLabel("Clique sur Original ou Normalise pour ecouter")
+        status = QLabel(T("Clique sur Original ou Normalise pour ecouter"))
         status.setStyleSheet(f"color:{TEXTD};font-size:9px;")
 
         brow.addWidget(btn_orig); brow.addWidget(btn_norm); brow.addWidget(btn_stop)
@@ -3675,7 +3883,7 @@ class Tagr(QMainWindow):
         d.rejected.connect(_on_close)
         d.accepted.connect(_on_close)
 
-        close = QPushButton("Fermer")
+        close = QPushButton(T("Fermer"))
         close.setStyleSheet(f"background:{PANEL};color:{TEXTM};border:none;"
                             f"padding:8px 20px;border-radius:4px;")
         close.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -3710,29 +3918,88 @@ class Tagr(QMainWindow):
             f"QMenu::item{{padding:8px 20px;font-size:11px;}}"
             f"QMenu::item:selected{{background:{PANEL};color:{TEXT};}}"
             f"QMenu::separator{{height:1px;background:{BORDER};margin:4px 0;}}")
-        menu.addAction("Sauvegarder + fichier suivant", self._save_and_next)
-        menu.addAction("Sauvegarder + problème suivant", self._save_and_next_issue)
+        menu.addAction(T("Sauvegarder + fichier suivant"), self._save_and_next)
+        menu.addAction(T("Sauvegarder + problème suivant"), self._save_and_next_issue)
         menu.addSeparator()
-        menu.addAction("Tout sauvegarder", self._save_all)
+        menu.addAction(T("Tout sauvegarder"), self._save_all)
         menu.exec(self.cursor().pos())
 
 
 
-    def _toggle_lang(self):
-        from PyQt6.QtWidgets import QMessageBox
-        new_lang = "en" if _LANG == "fr" else "fr"
+    def _switch_lang(self, idx):
+        new_lang = "fr" if idx == 0 else "en"
+        set_lang(new_lang)
         cfg = load_config()
         cfg["lang"] = new_lang
         save_config(cfg)
-        msg = QMessageBox(self)
-        msg.setWindowTitle(T("lang_title"))
-        msg.setText(T("lang_restart"))
-        msg.setStyleSheet(f"background:{BG2};color:{TEXT};")
-        msg.exec()
-        import sys
-        python = sys.executable
-        import os
-        os.execv(python, [python] + sys.argv)
+        self._apply_translations()
+
+    def _apply_translations(self):
+        """Met à jour tous les textes de l'UI sans redémarrer."""
+        # Combo langue (sans emoji, le globe est à côté)
+        if hasattr(self, "_lang_combo") and self._lang_combo is not None:
+            self._lang_combo.blockSignals(True)
+            self._lang_combo.setItemText(0, "Français")
+            self._lang_combo.setItemText(1, "English")
+            self._lang_combo.setCurrentIndex(0 if _LANG == "fr" else 1)
+            self._lang_combo.blockSignals(False)
+        # Fenêtre titre
+        self.setWindowTitle(T("app_title"))
+        # Bouton sauvegarder
+        if hasattr(self, "_save_btn"):
+            self._save_btn.setText(T("Sauvegarder"))
+        # Labels champs
+        if hasattr(self, "_lbl_titre"):
+            self._lbl_titre.setText(T("TITRE"))
+        if hasattr(self, "_lbl_artiste"):
+            self._lbl_artiste.setText(T("ARTISTE"))
+        if hasattr(self, "_lbl_album"):
+            self._lbl_album.setText(T("ALBUM"))
+        # Sections POCHETTE / LECTURE / OUTILS AUDIO
+        if hasattr(self, "_lbl_section_pochette"):
+            self._lbl_section_pochette.setText(T("POCHETTE"))
+        if hasattr(self, "_lbl_section_lecture"):
+            self._lbl_section_lecture.setText(T("LECTURE"))
+        if hasattr(self, "_lbl_section_outils"):
+            self._lbl_section_outils.setText(T("OUTILS AUDIO"))
+        # Hint zone vide
+        if hasattr(self, "hint") and self.hint is not None:
+            self.hint.setText(T("hint_drop"))
+        if hasattr(self, "_empty_title"):
+            self._empty_title.setText(T("empty_title"))
+        if hasattr(self, "_empty_hint"):
+            self._empty_hint.setText(T("empty_hint"))
+        # Hint pochette
+        if hasattr(self, "_cover_hint") and self._cover_hint is not None:
+            self._cover_hint.setText(T("Cliquer ou glisser une image"))
+        if hasattr(self, "cover_lbl") and self.cover_lbl.pixmap().isNull():
+            self.cover_lbl._reset()
+        # Bouton recadrer
+        if hasattr(self, "_crop_btn"):
+            self._crop_btn.setText(T("Recadrer"))
+        # Dropdown filtre
+        if hasattr(self, "filter_field"):
+            self.filter_field.blockSignals(True)
+            for i, key in enumerate(["A → Z", "Artiste", "Album", "Titre"]):
+                self.filter_field.setItemText(i, T(key))
+            self.filter_field.blockSignals(False)
+        # Boutons actions droite
+        if hasattr(self, "_btn_search_cover"):
+            self._btn_search_cover.setText(T("Recherche de pochette"))
+        if hasattr(self, "_btn_export_cover"):
+            self._btn_export_cover.setText(T("Exporter la pochette"))
+        if hasattr(self, "_btn_listen"):
+            self._btn_listen.setText(T("Ecouter"))
+        if hasattr(self, "_btn_audio_tools"):
+            self._btn_audio_tools.setText(T("Outils audio…"))
+        if hasattr(self, "spotify_status_lbl") and self.current_index < 0:
+            self.spotify_status_lbl.setText(T("Statut Spotify"))
+        # Re-render le fichier sélectionné pour mettre à jour qualité + Spotify issue
+        if hasattr(self, "current_index") and self.current_index is not None and 0 <= self.current_index < len(self.files):
+            try:
+                self._on_row_select(self.rows[self.current_index])
+            except Exception:
+                pass
 
     def _deselect_all(self):
         self._clear_row_selection()
@@ -3767,7 +4034,7 @@ class Tagr(QMainWindow):
         ytdlp = self._find_ytdlp()
         has_ytdlp_module = self._has_ytdlp_module()
         if not ytdlp and not has_ytdlp_module:
-            self._flash("yt-dlp introuvable — installe les dépendances Tagr", err=True)
+            self._flash(T("yt_not_found2"), err=True)
             return
 
         from PyQt6.QtWidgets import QDialog, QComboBox
@@ -3785,18 +4052,18 @@ class Tagr(QMainWindow):
         src_lbl.setStyleSheet(f"font-size:9px;color:{TEXTD};")
         v.addWidget(src_lbl)
 
-        v.addWidget(QLabel("URL :", styleSheet=f"color:{TEXTM};font-size:10px;"))
+        v.addWidget(QLabel(T("URL :"), styleSheet=f"color:{TEXTM};font-size:10px;"))
         url_input = QLineEdit()
-        url_input.setPlaceholderText("https://www.youtube.com/watch?v=...")
+        url_input.setPlaceholderText(T("placeholder_url"))
         url_input.setStyleSheet(
             f"background:{FIELDBG};color:{TEXT};border:1px solid {BORDER};"
             f"border-radius:5px;padding:8px 10px;font-size:12px;")
         v.addWidget(url_input)
 
         fmt_row = QHBoxLayout(); fmt_row.setSpacing(10)
-        fmt_row.addWidget(QLabel("Format :", styleSheet=f"color:{TEXTM};font-size:10px;"))
+        fmt_row.addWidget(QLabel(T("Format :"), styleSheet=f"color:{TEXTM};font-size:10px;"))
         fmt_combo = QComboBox()
-        fmt_combo.addItems(["MP3 320k", "Meilleure qualité (natif)"])
+        fmt_combo.addItems([T("MP3 320k"), T("Meilleure qualité (natif)")])
         fmt_combo.setStyleSheet(
             f"QComboBox{{background:{FIELDBG};color:{TEXT};border:1px solid {BORDER};"
             f"border-radius:5px;padding:6px 8px;font-size:11px;}}"
@@ -3806,11 +4073,11 @@ class Tagr(QMainWindow):
         v.addLayout(fmt_row)
 
         dest_row = QHBoxLayout(); dest_row.setSpacing(8)
-        dest_row.addWidget(QLabel("Dossier :", styleSheet=f"color:{TEXTM};font-size:10px;"))
+        dest_row.addWidget(QLabel(T("Dossier :"), styleSheet=f"color:{TEXTM};font-size:10px;"))
         dl_dest = [os.path.expanduser("~/Downloads")]
         dest_lbl = QLabel(dl_dest[0])
         dest_lbl.setStyleSheet(f"color:{TEXTD};font-size:9px;")
-        dest_btn = QPushButton("Changer")
+        dest_btn = QPushButton(T("Changer"))
         dest_btn.setStyleSheet(
             f"QPushButton{{background:{PANEL};color:{TEXTM};border:1px solid {BORDER};"
             f"border-radius:4px;font-size:9px;padding:4px 8px;}}"
@@ -3835,12 +4102,19 @@ class Tagr(QMainWindow):
             f"QPushButton:hover{{background:{ACCENT2};}}"
             f"QPushButton:disabled{{background:{PANEL};color:{TEXTD};}}")
         dl_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        # Stub pour compatibilité avec les refs au cancel_dl_btn dans do_download
-        class _FakeBtn:
-            def setEnabled(self, v): pass
-            def setText(self, v): pass
-        cancel_dl_btn = _FakeBtn()
-        v.addWidget(dl_btn)
+        cancel_dl_btn = QPushButton(T("Annuler"))
+        cancel_dl_btn.setStyleSheet(
+            f"QPushButton{{background:{PANEL};color:{TEXTM};border:1px solid {BORDER};"
+            f"padding:11px;font-size:12px;border-radius:5px;}}"
+            f"QPushButton:hover{{background:{PANEL2};color:{TEXT};}}"
+            f"QPushButton:disabled{{color:{TEXTD};}}")
+        cancel_dl_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        cancel_dl_btn.setEnabled(False)
+        dl_row = QHBoxLayout()
+        dl_row.setSpacing(8)
+        dl_row.addWidget(cancel_dl_btn)
+        dl_row.addWidget(dl_btn, 1)
+        v.addLayout(dl_row)
 
         status_lbl = QLabel("")
         status_lbl.setStyleSheet(f"color:{TEXTD};font-size:9px;")
@@ -3868,7 +4142,7 @@ class Tagr(QMainWindow):
             url = url_input.text().strip()
             if not url:
                 status_lbl.setStyleSheet(f"color:{ERROR};font-size:9px;")
-                status_lbl.setText("Entre une URL valide")
+                status_lbl.setText(T("Entre une URL valide"))
                 return
 
             dest = dl_dest[0]
@@ -3928,10 +4202,10 @@ class Tagr(QMainWindow):
             ) if os.path.isdir(dest) else set()
 
             dl_btn.setEnabled(False)
-            dl_btn.setText("Téléchargement...")
+            dl_btn.setText(T("Téléchargement..."))
             cancel_dl_btn.setEnabled(True)
             status_lbl.setStyleSheet(f"color:{ACCENT};font-size:9px;")
-            status_lbl.setText("Téléchargement en cours...")
+            status_lbl.setText(T("Téléchargement en cours..."))
 
             worker = DlWorker(cmd, dest, before_set, url=url, ytdlp_opts=worker_opts)
             self._dl_worker_ref[0] = worker
@@ -3939,7 +4213,7 @@ class Tagr(QMainWindow):
             def on_success(path):
                 status_lbl.setStyleSheet(f"color:{ACCENT};font-size:9px;")
                 status_lbl.setText(f"✓ {os.path.basename(path)}")
-                dl_btn.setText("Télécharger")
+                dl_btn.setText(T("Télécharger"))
                 dl_btn.setEnabled(True)
                 cancel_dl_btn.setEnabled(False)
                 if path not in self.files:
@@ -3955,7 +4229,7 @@ class Tagr(QMainWindow):
                     msg = msg[msg.rfind("ERROR"):][:150]
                 status_lbl.setStyleSheet(f"color:{ERROR};font-size:9px;")
                 status_lbl.setText(f"Erreur : {msg}")
-                dl_btn.setText("Réessayer")
+                dl_btn.setText(T("Réessayer"))
                 dl_btn.setEnabled(True)
                 cancel_dl_btn.setEnabled(False)
 
@@ -3966,7 +4240,7 @@ class Tagr(QMainWindow):
           except Exception as _e:
             status_lbl.setStyleSheet(f"color:{ERROR};font-size:9px;")
             status_lbl.setText(f"Erreur : {str(_e)[:120]}")
-            dl_btn.setText("Réessayer")
+            dl_btn.setText(T("Réessayer"))
             dl_btn.setEnabled(True)
 
         dl_btn.clicked.connect(do_download)
@@ -3975,8 +4249,9 @@ class Tagr(QMainWindow):
             if worker:
                 cancel_dl_btn.setEnabled(False)
                 status_lbl.setStyleSheet(f"color:{TEXTD};font-size:9px;")
-                status_lbl.setText("Annulation en cours...")
+                status_lbl.setText(T("Annulation en cours..."))
                 worker.cancel()
+        cancel_dl_btn.clicked.connect(cancel_download)
         url_input.returnPressed.connect(
             lambda: do_download() if dl_btn.isEnabled() else None)
 

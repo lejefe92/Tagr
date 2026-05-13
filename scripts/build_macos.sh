@@ -14,6 +14,7 @@ source "$ENV/bin/activate"
 
 echo "▶ Installation / mise à jour de PyInstaller..."
 pip install pyinstaller --quiet --quiet
+pip install -r "$HOME/Documents/Tagr/requirements.txt" --quiet --quiet
 
 echo "▶ Nettoyage des builds précédents..."
 rm -rf "$HOME/Documents/Tagr/build" "$DIST"

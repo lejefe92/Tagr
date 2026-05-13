@@ -1,3 +1,4 @@
 PyQt6>=6.4.0
 mutagen>=1.46.0
 Pillow>=9.0.0
+yt-dlp>=2024.8.6
