@@ -31,7 +31,10 @@ if [ -d "$DIST/$APP_NAME.app" ]; then
     echo "▶ Copie sur le Bureau..."
     rm -rf "$HOME/Desktop/$APP_NAME.app"
     cp -r "$DIST/$APP_NAME.app" "$HOME/Desktop/$APP_NAME.app"
-    echo "✅ Tagr.app disponible sur le Bureau"
+    echo "▶ Suppression de la quarantaine macOS..."
+    xattr -cr "$HOME/Desktop/$APP_NAME.app"
+    killall Dock 2>/dev/null || true
+    echo "✅ Tagr.app disponible sur le Bureau (icône rechargée)"
 else
     echo "❌ Build échoué — vérifie les erreurs ci-dessus"
     exit 1
