@@ -375,7 +375,7 @@ AUDIO_BACKUP_DIR = PROJECT_ROOT / "backups" / "audio"
 
 def load_config():
     try: return json.loads(CONFIG_PATH.read_text())
-    except: return {}
+    except (json.JSONDecodeError, OSError, IOError, Exception): return {}
 
 def _init_lang():
     cfg = load_config()
@@ -385,7 +385,7 @@ _init_lang()
 
 def save_config(d):
     try: CONFIG_PATH.write_text(json.dumps(d))
-    except: pass
+    except (OSError, IOError, Exception): pass
 
 def backup_audio_file(path, reason="edit"):
     try:
@@ -588,13 +588,13 @@ def write_tags(path,title,artist,album,year,genre,bpm,track="",cover=None):
             if genre: a["\xa9gen"]=genre
             if bpm:
                 try: a["tmpo"]=[int(bpm)]
-                except: pass
+                except Exception: pass
             if track:
                 try:
                     parts=track.split("/")
                     tot=int(parts[1]) if len(parts)>1 else 0
                     a["trkn"]=[(int(parts[0]),tot)]
-                except: pass
+                except Exception: pass
             if cover:
                 from mutagen.mp4 import MP4Cover
                 buf=io.BytesIO(); cover.save(buf,"JPEG",quality=90)
@@ -666,7 +666,7 @@ def quality_label(path, q):
 
 def fetch_image_url(url):
     try: return PILImage.open(io.BytesIO(urllib.request.urlopen(url,timeout=8).read())).convert("RGB")
-    except: return None
+    except (urllib.error.URLError, OSError, IOError, Exception): return None
 
 def search_itunes(q, n=4):
     try:
@@ -679,7 +679,7 @@ def search_itunes(q, n=4):
                  "artwork": r.get("artworkUrl100","").replace("100x100","600x600"),
                  "source":  "iTunes"}
                 for r in d.get("results",[]) if r.get("artworkUrl100")]
-    except: return []
+    except (urllib.error.URLError, json.JSONDecodeError, Exception): return []
 
 
 def search_itunes_artist(q, n=4):
@@ -700,7 +700,7 @@ def search_itunes_artist(q, n=4):
                     "source":  "iTunes"
                 })
         return results
-    except: return []
+    except (urllib.error.URLError, json.JSONDecodeError, Exception): return []
 
 def search_deezer(q, n=4):
     try:
@@ -715,7 +715,7 @@ def search_deezer(q, n=4):
                  "source":  "Deezer"}
                 for r in d.get("data",[])
                 if r.get("album",{}).get("cover_xl") or r.get("album",{}).get("cover_big")]
-    except: return []
+    except (urllib.error.URLError, json.JSONDecodeError, Exception): return []
 
 
 def search_deezer_artist(q, n=4):
@@ -736,7 +736,7 @@ def search_deezer_artist(q, n=4):
                     "source":  "Deezer"
                 })
         return results
-    except: return []
+    except (urllib.error.URLError, json.JSONDecodeError, Exception): return []
 
 def search_musicbrainz(q, n=4):
     try:
@@ -762,7 +762,7 @@ def search_musicbrainz(q, n=4):
                 "source":  "MusicBrainz"
             })
         return [r for r in results if r["artwork"]]
-    except:
+    except (urllib.error.URLError, json.JSONDecodeError, Exception):
         return []
 
 
@@ -954,7 +954,7 @@ class CoverLabel(QLabel):
                 try:
                     img=PILImage.open(p).convert("RGB")
                     self.image_dropped.emit(img); break
-                except: pass
+                except (OSError, IOError, Exception): pass
         e.acceptProposedAction()
 
 # ── FileRow ───────────────────────────────────────────────────────────────────
@@ -1204,7 +1204,7 @@ def load_waveform(path, n_bars=100):
             sl = samples[i*chunk:(i+1)*chunk]
             bars.append(max(abs(s) for s in sl)/32768.0 if sl else 0.0)
         return bars
-    except:
+    except Exception:
         # Fallback : barres simulées si afconvert échoue
         import math, random; random.seed(0)
         return [abs(math.sin(i/4))*0.6 + random.random()*0.4 for i in range(n_bars)]
@@ -1525,7 +1525,7 @@ class TrimDialog(QDialog):
                 p = txt.split(":")
                 return int(p[0]) * 60 + float(p[1])
             return float(txt)
-        except:
+        except Exception:
             return None
 
     def _get_times(self):
@@ -1620,7 +1620,7 @@ class TrimDialog(QDialog):
                 self._play_proc.wait()
                 try:
                     os.remove(tmp)
-                except: pass
+                except (OSError, IOError, Exception): pass
                 QTimer.singleShot(0, lambda: self.prev_btn.setText(T("▶  Écouter la sélection")))
             threading.Thread(target=watch, daemon=True).start()
         except Exception as ex:
@@ -1667,7 +1667,7 @@ class TrimDialog(QDialog):
                            orig.get("year",""), orig.get("genre",""),
                            orig.get("bpm",""), orig.get("track",""),
                            orig.get("cover"))
-            except: pass
+            except (OSError, IOError, Exception): pass
             try: subprocess.run(["mdimport", out], capture_output=True, timeout=10)
             except Exception: pass
             try: subprocess.run(["open", "-R", out], timeout=5)
@@ -1683,7 +1683,7 @@ class TrimDialog(QDialog):
                 proc.terminate()
         if self._preview_tmp and os.path.exists(self._preview_tmp):
             try: os.remove(self._preview_tmp)
-            except: pass
+            except (OSError, IOError, Exception): pass
         e.accept()
 
 
@@ -1836,7 +1836,7 @@ class Tagr(QMainWindow):
             self.setWindowFlag(_Qt.WindowType.FramelessWindowHint, False)
             # Utiliser le style macOS sans titlebar visible
             self.setUnifiedTitleAndToolBarOnMac(True)
-        except: pass
+        except Exception: pass
         self.setStyleSheet(f"QMainWindow{{background:{BG};}}")
         self.setAcceptDrops(True)
         self.files=[]; self.rows=[]; self.current_index=-1
@@ -1873,7 +1873,7 @@ class Tagr(QMainWindow):
             try:
                 from PyQt6.QtCore import QByteArray
                 self.restoreGeometry(QByteArray.fromHex(geo.encode()))
-            except: pass
+            except Exception: pass
         # Restaure les fichiers de la session précédente
         for p in self._cfg.get("recent_files", []):
             if os.path.isfile(p) and p not in self.files:
@@ -2327,7 +2327,7 @@ class Tagr(QMainWindow):
                     sb.setValue(max(0, row_y - 8))
                 elif row_y + row.height() > cur + visible_h:
                     sb.setValue(row_y + row.height() - visible_h + 8)
-            except: pass
+            except Exception: pass
         QTimer.singleShot(50, _scroll_to_row)
         path=self.files[idx]
         tags=self.tags_cache.get(path) or read_tags(path)
@@ -2343,7 +2343,7 @@ class Tagr(QMainWindow):
         else:
             self.cover_lbl._reset()
             try: self.cover_info.setText("")
-            except: pass
+            except Exception: pass
         self.right.show_editor(); self.status_lbl.setText("")
         self.play_btn.setText(T("Ecouter"))
         # Qualité audio
@@ -2570,7 +2570,7 @@ class Tagr(QMainWindow):
         if self._play_proc and self._play_proc.poll() is None: self._play_proc.terminate()
         self._play_proc=None
         try: self.play_btn.setText(T("Ecouter"))
-        except: pass
+        except Exception: pass
 
     # ── Sauvegarder ───────────────────────────────────────────────────────────
 
@@ -2630,7 +2630,7 @@ class Tagr(QMainWindow):
                         self.rows[self.current_index].path = new_path
                         self.tags_cache.pop(path, None)
                         path = new_path
-                    except: pass
+                    except Exception: pass
             target = path
 
         res = write_tags(target, title, artist, album, year, genre, bpm, track, self.current_cover)
@@ -3104,7 +3104,7 @@ class Tagr(QMainWindow):
                 qcolor = ERROR
             self.cover_info.setText(f"{w}x{h} px  •  {quality}")
             self.cover_info.setStyleSheet(f"color:{qcolor};font-size:8px;")
-        except:
+        except (OSError, IOError, Exception):
             pass
 
     def _find_ffmpeg(self):
@@ -3161,7 +3161,7 @@ class Tagr(QMainWindow):
             import mutagen
             af = mutagen.File(path)
             if af: duration_ms = int(af.info.length * 1000)
-        except: pass
+        except (OSError, IOError, Exception): pass
 
         prog = QProgressDialog("Normalisation en cours...", "Annuler", 0, 100, self)
         prog.setWindowTitle("Tagr"); prog.setMinimumWidth(300)
@@ -3182,7 +3182,7 @@ class Tagr(QMainWindow):
                     write_tags(tmp_out, orig["title"], orig["artist"], orig["album"],
                                orig.get("year",""), orig.get("genre",""),
                                orig.get("bpm",""), orig.get("track",""), orig.get("cover"))
-                except: pass
+                except (OSError, IOError, Exception): pass
                 if overwrite_chk.isChecked():
                     try:
                         import shutil
@@ -3256,7 +3256,7 @@ class Tagr(QMainWindow):
             import mutagen as _m
             af = _m.File(path)
             if af: duration_ms = int(af.info.length * 1000)
-        except: pass
+        except (OSError, IOError, Exception): pass
 
         prog = QProgressDialog(f"Conversion en cours...", "Annuler", 0, 100, self)
         prog.setWindowTitle("Tagr"); prog.setMinimumWidth(300)
@@ -3275,7 +3275,7 @@ class Tagr(QMainWindow):
                     write_tags(out, orig["title"], orig["artist"], orig["album"],
                                orig.get("year",""), orig.get("genre",""),
                                orig.get("bpm",""), orig.get("track",""), orig.get("cover"))
-                except: pass
+                except (OSError, IOError, Exception): pass
                 subprocess.run(["mdimport", out], capture_output=True)
                 self._flash(f"Converti : {os.path.basename(out)}")
             else:
@@ -3384,7 +3384,7 @@ class Tagr(QMainWindow):
                                    tags.get("cover"))
                 subprocess.run(["mdimport", new_path], capture_output=True)
                 renamed += 1
-            except:
+            except (OSError, IOError, Exception):
                 skipped += 1
         msg = f"{renamed} fichier(s) renomme(s)"
         if skipped:
@@ -3440,7 +3440,7 @@ class Tagr(QMainWindow):
             try:
                 row.lbl_t.setStyleSheet(
                     f"color:{TEXT};font-size:12px;font-weight:bold;background:transparent;")
-            except: pass
+            except Exception: pass
 
     def _duplicate_groups(self):
         groups = {}
@@ -3623,7 +3623,7 @@ class Tagr(QMainWindow):
             try:
                 if w.height() == 54:
                     w.setStyleSheet(f"background:{BG};border-bottom:1px solid {BORDER};")
-            except: pass
+            except Exception: pass
         # Rebuild liste
         if hasattr(self, 'list_widget'):
             self.list_widget.setStyleSheet(
@@ -3726,7 +3726,7 @@ class Tagr(QMainWindow):
                 lbl, _ = quality_label(row.path, q)
                 qualities[lbl] = qualities.get(lbl, 0) + 1
                 if q.get("duration"): total_dur += q["duration"]
-            except: pass
+            except (OSError, IOError, Exception): pass
 
         def stat_row(label, value, color=None):
             row_w = QWidget(); row_l = QHBoxLayout(row_w)
@@ -3894,7 +3894,7 @@ class Tagr(QMainWindow):
             _stop()
             if self._ba_tmp and os.path.exists(self._ba_tmp):
                 try: os.remove(self._ba_tmp)
-                except: pass
+                except (OSError, IOError, Exception): pass
         d.rejected.connect(_on_close)
         d.accepted.connect(_on_close)
 
