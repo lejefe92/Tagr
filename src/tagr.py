@@ -1600,7 +1600,12 @@ class TrimDialog(QDialog):
 
         cmd = [ffmpeg, "-y", "-ss", str(ts), "-t", str(dur),
                "-i", self.path, "-c", "copy", tmp]
-        r = subprocess.run(cmd, capture_output=True)
+        try:
+            r = subprocess.run(cmd, capture_output=True, timeout=30)
+        except subprocess.TimeoutExpired:
+            self.status.setStyleSheet(f"color:{ERROR};font-size:10px;")
+            self.status.setText(T("ffmpeg_preview_error"))
+            return
         if r.returncode != 0:
             self.status.setStyleSheet(f"color:{ERROR};font-size:10px;")
             self.status.setText(T("ffmpeg_preview_error"))
@@ -1645,10 +1650,15 @@ class TrimDialog(QDialog):
         self.status.setText(T("Découpage en cours…"))
         QApplication.processEvents()
 
-        r = subprocess.run(
-            [ffmpeg,"-y","-ss",str(ts),"-t",str(te-ts),
-             "-i",self.path,"-c","copy", out],
-            capture_output=True)
+        try:
+            r = subprocess.run(
+                [ffmpeg,"-y","-ss",str(ts),"-t",str(te-ts),
+                 "-i",self.path,"-c","copy", out],
+                capture_output=True, timeout=300)
+        except subprocess.TimeoutExpired:
+            self.status.setStyleSheet(f"color:{ERROR};font-size:10px;")
+            self.status.setText(T("ffmpeg_preview_error"))
+            return
 
         if r.returncode == 0:
             try:
@@ -1658,8 +1668,10 @@ class TrimDialog(QDialog):
                            orig.get("bpm",""), orig.get("track",""),
                            orig.get("cover"))
             except: pass
-            subprocess.run(["mdimport", out], capture_output=True)
-            subprocess.run(["open", "-R", out])
+            try: subprocess.run(["mdimport", out], capture_output=True, timeout=10)
+            except Exception: pass
+            try: subprocess.run(["open", "-R", out], timeout=5)
+            except Exception: pass
             self.status.setText(f"Créé : {os.path.basename(out)}")
         else:
             self.status.setStyleSheet(f"color:{ERROR};font-size:10px;")
@@ -2629,7 +2641,8 @@ class Tagr(QMainWindow):
             self.rows[self.current_index].set_display(title, artist, self.current_cover)
             self.rows[self.current_index].set_dirty(False)
             # Mettre à jour le Finder
-            subprocess.run(["mdimport", target], capture_output=True)
+            try: subprocess.run(["mdimport", target], capture_output=True, timeout=10)
+            except Exception: pass
             if clicked == new_btn:
                 self._flash(f"Créé : {os.path.basename(target)}")
             else:
@@ -2669,7 +2682,8 @@ class Tagr(QMainWindow):
             self.files[self.current_index]=new_path
             self.tags_cache[new_path]=self.tags_cache.pop(path,{})
             self.rows[self.current_index].path=new_path
-            subprocess.run(["mdimport",new_path],capture_output=True)
+            try: subprocess.run(["mdimport", new_path], capture_output=True, timeout=10)
+            except Exception: pass
             self._flash(f"Renommé : {new_name}")
         except Exception as e: self._flash(f"Erreur : {e}",err=True)
 
@@ -2735,7 +2749,8 @@ class Tagr(QMainWindow):
 
     def _reveal_finder(self):
         if self.current_index>=0:
-            subprocess.run(["open","-R",self.files[self.current_index]])
+            try: subprocess.run(["open", "-R", self.files[self.current_index]], timeout=5)
+            except Exception: pass
 
 
     def _undo_current(self):
