@@ -127,6 +127,9 @@ _TRANSLATIONS = {
         "Normalisation a -14 LUFS (standard Spotify / Apple Music)": "Normalisation a -14 LUFS (standard Spotify / Apple Music)",
         "n_unsaved": "{n} fichier(s) non sauvegardé(s).",
         "save_before_quit": "Sauvegarder avant de quitter ?",
+        "err_bpm":   "BPM invalide — entier attendu (ex: 128)",
+        "err_year":  "Année invalide — 4 chiffres attendus (ex: 2024)",
+        "err_track": "Piste invalide — format N ou N/Total attendu (ex: 3 ou 3/12)",
         "export_note": "L'export copie les fichiers tels qu'ils sont sur disque.",
         "n_renames": "{n} renommage(s) prévu(s)",
         "file_modified": "Fichier modifié : {name}",
@@ -314,11 +317,13 @@ _TRANSLATIONS = {
         "yt-dlp introuvable — brew install yt-dlp": "yt-dlp not found — brew install yt-dlp",
         "{n} renommage(s) prévu(s)": "{n} rename(s) planned",
         "YouTube · SoundCloud · Bandcamp · et + de 1000 sites": "YouTube · SoundCloud · Bandcamp · and 1000+ sites",
-        "Glisse des fichiers audio\\\\nou un dossier entier ici\\\\n\\\\nMP3  FLAC  M4A  AAC  OGG": "Drop audio files\\\\nor a folder here\\\\n\\\\nMP3  FLAC  M4A  AAC  OGG",
         "dl_cancelled2": "Download cancelled",
         "duration_error": "Cannot read file duration",
         "Année": "Year",
         "num_tracks_hint": "Number tracks in list order",
+        "err_bpm":   "Invalid BPM — integer expected (e.g. 128)",
+        "err_year":  "Invalid year — 4 digits expected (e.g. 2024)",
+        "err_track": "Invalid track — format N or N/Total expected (e.g. 3 or 3/12)",
         "yt_not_found2": "yt-dlp not found — install Tagr dependencies",
         "lang_toggle": "Français", "lang_name": "English",
         "lang_restart": "Restart Tagr to apply the language change.",
@@ -446,7 +451,7 @@ WARN    = WARN
 FIELDBG = FIELDBG
 SELBG   = SELBG
 
-def is_audio(p): return p.lower().endswith((".mp3",".flac",".m4a",".aac"))
+def is_audio(p): return p.lower().endswith((".mp3",".flac",".m4a",".aac",".ogg"))
 def is_image(p): return p.lower().endswith((".jpg",".jpeg",".png",".webp",".bmp"))
 def safe_fn(s):
     for c in r'/\:*?"<>|': s=s.replace(c,"")
@@ -532,7 +537,9 @@ def read_tags(path):
             info["track"] =str(t.get("TRCK","")).strip()
             for k in t:
                 if k.startswith("APIC"):
-                    info["cover"]=PILImage.open(io.BytesIO(t[k].data)).convert("RGB"); break
+                    img=PILImage.open(io.BytesIO(t[k].data)).convert("RGB")
+                    img.thumbnail((800,800), PILImage.LANCZOS)
+                    info["cover"]=img; break
         elif ext=="flac":
             a=FLAC(path)
             info["title"] =(a.get("title", [""])[0]).strip()
@@ -542,7 +549,10 @@ def read_tags(path):
             info["genre"] =(a.get("genre", [""])[0]).strip()
             info["bpm"]   =(a.get("bpm",   [""])[0]).strip()
             info["track"] =(a.get("tracknumber",[""])[0]).strip() if a.get("tracknumber") else ""
-            if a.pictures: info["cover"]=PILImage.open(io.BytesIO(a.pictures[0].data)).convert("RGB")
+            if a.pictures:
+                img=PILImage.open(io.BytesIO(a.pictures[0].data)).convert("RGB")
+                img.thumbnail((800,800), PILImage.LANCZOS)
+                info["cover"]=img
         elif ext in("m4a","aac"):
             a=MP4(path)
             info["title"] =(a.get("\xa9nam",[""])[0]).strip()
@@ -553,7 +563,20 @@ def read_tags(path):
             tmpo=a.get("tmpo"); info["bpm"]=str(tmpo[0]).strip() if tmpo else ""
             trkn=a.get("trkn"); info["track"]=f'{trkn[0][0]}/{trkn[0][1]}' if trkn and trkn[0][1] else (str(trkn[0][0]) if trkn else "")
             c=a.get("covr")
-            if c: info["cover"]=PILImage.open(io.BytesIO(bytes(c[0]))).convert("RGB")
+            if c:
+                img=PILImage.open(io.BytesIO(bytes(c[0]))).convert("RGB")
+                img.thumbnail((800,800), PILImage.LANCZOS)
+                info["cover"]=img
+        elif ext=="ogg":
+            from mutagen.oggvorbis import OggVorbis
+            a=OggVorbis(path)
+            info["title"] =(a.get("title",  [""])[0]).strip()
+            info["artist"]=(a.get("artist", [""])[0]).strip()
+            info["album"] =(a.get("album",  [""])[0]).strip()
+            info["year"]  =(a.get("date",   [""])[0]).strip()
+            info["genre"] =(a.get("genre",  [""])[0]).strip()
+            info["bpm"]   =(a.get("bpm",    [""])[0]).strip()
+            info["track"] =(a.get("tracknumber",[""])[0]).strip() if a.get("tracknumber") else ""
     except Exception as e:
         info["_read_error"] = str(e)
         print(f"read_tags: {e}")
@@ -611,6 +634,15 @@ def write_tags(path,title,artist,album,year,genre,bpm,track="",cover=None):
                 from mutagen.mp4 import MP4Cover
                 buf=io.BytesIO(); cover.save(buf,"JPEG",quality=90)
                 a["covr"]=[MP4Cover(buf.getvalue(),imageformat=MP4Cover.FORMAT_JPEG)]
+            a.save()
+        elif ext=="ogg":
+            from mutagen.oggvorbis import OggVorbis
+            a=OggVorbis(path)
+            a["title"]=[title]; a["artist"]=[artist]; a["album"]=[album]
+            if year:  a["date"]=[year]
+            if genre: a["genre"]=[genre]
+            if bpm:   a["bpm"]=[bpm]
+            if track: a["tracknumber"]=[track]
             a.save()
         return True
     except Exception as e: return str(e)
@@ -2598,6 +2630,19 @@ class Tagr(QMainWindow):
         genre = self.field_genre.text().strip()
         bpm   = self.field_bpm.text().strip()
         track = self.field_track.text().strip()
+
+        # Validation des champs numériques
+        if bpm:
+            try: int(float(bpm))
+            except (ValueError, TypeError):
+                self._flash(T("err_bpm"), err=True); return False
+        if year:
+            if not year.isdigit() or not (0 <= int(year) <= 2100):
+                self._flash(T("err_year"), err=True); return False
+        if track:
+            parts = track.split("/")
+            if not all(p.strip().isdigit() for p in parts if p.strip()):
+                self._flash(T("err_track"), err=True); return False
 
         # Dialog : écraser ou créer nouveau fichier
         from PyQt6.QtWidgets import QMessageBox
