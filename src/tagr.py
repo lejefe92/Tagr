@@ -507,7 +507,17 @@ def pil_to_qpixmap_exact(img, w, h):
 # ── Tags I/O ──────────────────────────────────────────────────────────────────
 
 def read_tags(path):
-    info={"title":"","artist":"","album":"","year":"","genre":"","bpm":"","track":"","cover":None}
+    info={"title":"","artist":"","album":"","year":"","genre":"","bpm":"","track":"","cover":None,"_read_error":None}
+    # Vérification préliminaire : fichier lisible et non vide
+    try:
+        if not os.path.isfile(path) or os.path.getsize(path) == 0:
+            info["_read_error"] = "Fichier vide ou introuvable"
+            info["title"] = os.path.splitext(os.path.basename(path))[0]
+            return info
+    except OSError as e:
+        info["_read_error"] = str(e)
+        info["title"] = os.path.splitext(os.path.basename(path))[0]
+        return info
     ext=path.lower().rsplit(".",1)[-1]
     try:
         if ext=="mp3":
@@ -544,7 +554,9 @@ def read_tags(path):
             trkn=a.get("trkn"); info["track"]=f'{trkn[0][0]}/{trkn[0][1]}' if trkn and trkn[0][1] else (str(trkn[0][0]) if trkn else "")
             c=a.get("covr")
             if c: info["cover"]=PILImage.open(io.BytesIO(bytes(c[0]))).convert("RGB")
-    except Exception as e: print(f"read_tags: {e}")
+    except Exception as e:
+        info["_read_error"] = str(e)
+        print(f"read_tags: {e}")
     if not info["title"]: info["title"]=os.path.splitext(os.path.basename(path))[0]
     return info
 
@@ -2251,6 +2263,8 @@ class Tagr(QMainWindow):
 
     def _on_tags_loaded(self,path,tags):
         self.tags_cache[path]=tags
+        if tags.get("_read_error"):
+            self._flash(f"⚠️ Fichier illisible : {os.path.basename(path)}", err=True)
         for row in self.rows:
             if row.path==path: row.set_display(tags["title"],tags["artist"],tags["cover"]); break
 
