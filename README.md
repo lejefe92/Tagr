@@ -21,7 +21,16 @@ Edit metadata, find cover art, and download audio from the web, all in one place
 
 ## Installation
 
-1. Download `Tagr-v1.3.zip` from the [latest release](https://github.com/lejefe92/Tagr/releases/latest)
+### Option A — Homebrew (recommended)
+
+```bash
+brew tap lejefe92/tagr
+brew install --cask tagr
+```
+
+### Option B — Manual download
+
+1. Download `Tagr-v1.3.1.zip` from the [latest release](https://github.com/lejefe92/Tagr/releases/latest)
 2. Unzip and drag `Tagr.app` to your Applications folder
 3. First launch: **right-click → Open** (required to bypass macOS Gatekeeper on unsigned apps)
 
